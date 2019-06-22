@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="6">
+  <Properties>
+    <Name>Better Balanced Starts</Name>
+    <Description>
+		Creates a map with a more balanced placement of both city states and players.[NEWLINE][NEWLINE]Slightly less desert overall, desert further from tundra, and tundra/snow slightly more towards the poles.[NEWLINE][NEWLINE]Amani abuse fix (can immediately re-declare war on a CS after an enemy suzerain removes Amani)[NEWLINE][NEWLINE]Known Behavior:[NEWLINE]Some city-states may not spawn due to there not being enough starting plots using the new spacing rules.
+	</Description>
+    <Teaser>Creates a map with a more balanced placement of both city states and players as well as removing city state envoy abuse.</Teaser>
+    <Authors>Wazabaza and codenaugh</Authors>
+    <SpecialThanks>dutchgamerspot</SpecialThanks>
+	<CompatibleVersions>2.0</CompatibleVersions>
+  </Properties>
+
+  <InGameActions>
+		<ImportFiles id="bbs_import_files">
+			<Properties>
+				<LoadOrder>1623</LoadOrder>
+			</Properties>
+			<File>AssignStartingPlots.lua</File>
+			<File>TerrainGenerator.lua</File>
+		</ImportFiles>
+  </InGameActions>
+
+  <Files>
+	  <File>AssignStartingPlots.lua</File>
+	  <File>TerrainGenerator.lua</File>
+  </Files>
+</Mod>
