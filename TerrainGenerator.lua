@@ -87,7 +87,7 @@ function GenerateTerrainTypes(plotTypes, iW, iH, iFlags, bNoCoastalMountains, te
 	local plains_shift = 6;
 	
 	-- Set terrain bands.
-	local iDesertPercent = 30;
+	local iDesertPercent = 25;
 	local iPlainsPercent = 50; 
 	local fSnowLatitude  = 0.88 + coldShift;
 	local fTundraLatitude = 0.65 + coldShift;

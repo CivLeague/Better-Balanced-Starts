@@ -1126,6 +1126,8 @@ function AssignStartingPlots:__AddFood(plot)
 		local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), dir);
 		local canPlace = true;
 		
+		if (adjacentPlot == nil) then return false; end
+
 		for row = 0, iResourcesInDB do
 			if(eResourceType[row] == adjacentPlot:GetResourceType()) then
 				canPlace = false;
@@ -1207,6 +1209,8 @@ function AssignStartingPlots:__AddProduction(plot)
 	for i = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
 		local adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), dir);
 		local canPlace = true;
+
+		if (adjacentPlot == nil) then return false; end
 
 		for row = 0, iResourcesInDB do
 			if(eResourceType[row] == adjacentPlot:GetResourceType()) then
