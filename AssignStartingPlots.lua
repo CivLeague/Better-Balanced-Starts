@@ -651,8 +651,8 @@ function AssignStartingPlots:__SetStartMinor(plots)
 		end
 	end
  
-	--return pFallback;
-	return nil;
+	return pFallback;
+	--return nil;
 end
 
 ------------------------------------------------------------------------------
