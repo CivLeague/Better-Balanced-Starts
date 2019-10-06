@@ -151,11 +151,11 @@ function AssignStartingPlots:__InitStartingData()
 	self.iNumMinorCivs = PlayerManager.GetAliveMinorsCount();
 	self.minorList = {};
 	self.minorList = PlayerManager.GetAliveMinorIDs();
-	self.iNumRegions = self.iNumMajorCivs + self.iNumMinorCivs;
+	self.iNumRegions = self.iNumMajorCivs * 2 + self.iNumMinorCivs * 2;
 	local iMinNumBarbarians = self.iNumMajorCivs / 2;
 	
-	StartPositioner.DivideMapIntoMajorRegions(self.iNumMajorCivs, self.uiMinMajorCivFertility, self.uiMinMinorCivFertility);
-	local iMajorCivStartLocs = StartPositioner.GetNumMajorCivStarts();
+	StartPositioner.DivideMapIntoMajorRegions(self.iNumMajorCivs * 2, self.uiMinMajorCivFertility, self.uiMinMinorCivFertility);
+	local iMajorCivStartLocs = StartPositioner.GetNumMajorCivStarts() * 2;
 
 	print ("-- MAJOR CIV START LOCS: " .. tostring(iMajorCivStartLocs) .. " --");	
 	self.majorStartPlots = {};
@@ -191,37 +191,41 @@ function AssignStartingPlots:__InitStartingData()
 		end
 	end
 	
+	print ("-- START FAILED MAJOR LOOP--");
 	local count = self.iNumMajorCivs;
 	while failed > 0 and iMajorCivStartLocs > count do
+		print ("FAILED == " .. tostring(failed));
+		print ("count == " .. tostring(count));
 		plots = StartPositioner.GetMajorCivStartPlots(count);
 		local startPlot = self:__SetStartMajor(plots, count);
 		if(startPlot ~= nil) then
 			StartPositioner.MarkMajorRegionUsed(count);
 			table.insert(self.majorStartPlots, startPlot);
 			info = StartPositioner.GetMajorCivStartInfo(count);
-			--print ("ContinentType2: " .. tostring(info.ContinentType));
-			--print ("LandmassID2: " .. tostring(info.LandmassID));
-			--print ("Fertility2: " .. tostring(info.Fertility));
-			--print ("TotalPlots2: " .. tostring(info.TotalPlots));
-			--print ("WestEdge2: " .. tostring(info.WestEdge));
-			--print ("EastEdge2: " .. tostring(info.EastEdge));
-			--print ("NorthEdge2: " .. tostring(info.NorthEdge));
-			--print ("SouthEdge2: " .. tostring(info.SouthEdge));
+			print ("ContinentType2: " .. tostring(info.ContinentType));
+			print ("LandmassID2: " .. tostring(info.LandmassID));
+			print ("Fertility2: " .. tostring(info.Fertility));
+			print ("TotalPlots2: " .. tostring(info.TotalPlots));
+			print ("WestEdge2: " .. tostring(info.WestEdge));
+			print ("EastEdge2: " .. tostring(info.EastEdge));
+			print ("NorthEdge2: " .. tostring(info.NorthEdge));
+			print ("SouthEdge2: " .. tostring(info.SouthEdge));
 			failed = failed - 1;
 		else
 			info = StartPositioner.GetMajorCivStartInfo(count);
-			--print ("X2ContinentType: " .. tostring(info.ContinentType));
-			--print ("X2LandmassID: " .. tostring(info.LandmassID));
-			--print ("X2Fertility: " .. tostring(info.Fertility));
-			--print ("X2TotalPlots: " .. tostring(info.TotalPlots));
-			--print ("X2WestEdge: " .. tostring(info.WestEdge));
-			--print ("X2EastEdge: " .. tostring(info.EastEdge));
-			--print ("X2NorthEdge: " .. tostring(info.NorthEdge));
-			--print ("X2SouthEdge: " .. tostring(info.SouthEdge));
-			--print("faILed MAJOR MINOR");
+			print ("X2ContinentType: " .. tostring(info.ContinentType));
+			print ("X2LandmassID: " .. tostring(info.LandmassID));
+			print ("X2Fertility: " .. tostring(info.Fertility));
+			print ("X2TotalPlots: " .. tostring(info.TotalPlots));
+			print ("X2WestEdge: " .. tostring(info.WestEdge));
+			print ("X2EastEdge: " .. tostring(info.EastEdge));
+			print ("X2NorthEdge: " .. tostring(info.NorthEdge));
+			print ("X2SouthEdge: " .. tostring(info.SouthEdge));
+			print("faILed MAJOR MINOR");
 		end
 		count = count + 1;
 	end
+	print ("-- END FAILED MAJOR LOOP--");
 
 	for k, plot in ipairs(self.majorStartPlots) do
 		table.insert(self.majorCopy, plot);
@@ -255,9 +259,9 @@ function AssignStartingPlots:__InitStartingData()
 		end
 	end
 
-	StartPositioner.DivideMapIntoMinorRegions(self.iNumMinorCivs);
+	StartPositioner.DivideMapIntoMinorRegions(self.iNumMinorCivs * 2);
 
-	local iMinorCivStartLocs = StartPositioner.GetNumMinorCivStarts();
+	local iMinorCivStartLocs = StartPositioner.GetNumMinorCivStarts() * 2;
 	local i = 0;
 	local valid = 0;
 	print ("-- MINOR CIV START LOCS: " .. tostring(iMinorCivStartLocs) .. " --");
@@ -651,8 +655,8 @@ function AssignStartingPlots:__SetStartMinor(plots)
 		end
 	end
  
-	return pFallback;
-	--return nil;
+	--return pFallback;
+	return nil;
 end
 
 ------------------------------------------------------------------------------

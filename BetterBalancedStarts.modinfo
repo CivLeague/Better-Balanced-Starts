@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="6">
+<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="7">
   <Properties>
     <Name>Better Balanced Starts</Name>
     <Description>
@@ -7,7 +7,7 @@
 	</Description>
     <Teaser>Creates a map with a more balanced placement of both city states and players as well as removing city state envoy abuse.</Teaser>
     <Authors>Wazabaza and codenaugh</Authors>
-    <SpecialThanks>dutchgamerspot</SpecialThanks>
+    <SpecialThanks>dutchgamerspot and Jack The Narrator</SpecialThanks>
 	<CompatibleVersions>2.0</CompatibleVersions>
   </Properties>
 
