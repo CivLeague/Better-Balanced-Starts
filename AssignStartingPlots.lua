@@ -151,11 +151,11 @@ function AssignStartingPlots:__InitStartingData()
 	self.iNumMinorCivs = PlayerManager.GetAliveMinorsCount();
 	self.minorList = {};
 	self.minorList = PlayerManager.GetAliveMinorIDs();
-	self.iNumRegions = self.iNumMajorCivs * 2 + self.iNumMinorCivs * 2;
+	self.iNumRegions = self.iNumMajorCivs + self.iNumMinorCivs * 2;
 	local iMinNumBarbarians = self.iNumMajorCivs / 2;
 	
-	StartPositioner.DivideMapIntoMajorRegions(self.iNumMajorCivs * 2, self.uiMinMajorCivFertility, self.uiMinMinorCivFertility);
-	local iMajorCivStartLocs = StartPositioner.GetNumMajorCivStarts() * 2;
+	StartPositioner.DivideMapIntoMajorRegions(self.iNumMajorCivs, self.uiMinMajorCivFertility, self.uiMinMinorCivFertility);
+	local iMajorCivStartLocs = StartPositioner.GetNumMajorCivStarts();
 
 	print ("-- MAJOR CIV START LOCS: " .. tostring(iMajorCivStartLocs) .. " --");	
 	self.majorStartPlots = {};
