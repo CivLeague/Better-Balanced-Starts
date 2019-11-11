@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+  <LocalizedText>
+	
+	<!-- New entries -->
+	<Replace Tag="I18N_BALANCING_TYPE_1_NAME" language="en">
+		<Text>Spawn Rebalancing</Text>
+	</Replace>
+	<Replace Tag="I18N_BALANCING_TYPE_1_DESC" language="en">
+		<Text>Corrects the balancing of each spawn to be within a certain yield percentage of each major civilization:[newline]   1: Less adjustments (33%)[newline]   2: Standard (25%)[newline]   3: More adjustments (10%)</Text>
+	</Replace>
+	<Replace Tag="LOC_GAME_SPAWN_RECALCULATION" language="en">
+		<Text>Spawn Recalculation</Text>
+	</Replace>
+	<Replace Tag="LOC_GAME_SPAWN_RECALCULATION_DESC" language="en">
+		<Text>Attempt to place the civ in better starting location</Text>
+	</Replace>
+	<Replace Tag="LOC_GAME_SPAWN_REMAP" language="en">
+		<Text>Force Remap</Text>
+	</Replace>
+	<Replace Tag="LOC_GAME_SPAWN_REMAP_DESC" language="en">
+		<Text>Automatically defeat all the civs if minimum distances as per CPL are not satisfied.</Text>
+	</Replace>
+	<Replace Tag="LOC_GAME_BBS_TEMP" language="en">
+		<Text>Use BBS temperature settings?</Text>
+	</Replace>
+	<Replace Tag="LOC_GAME_BBS_TEMP_DESC" language="en">
+		<Text>Less Snow and less Desert than Firaxis defaults.</Text>
+	</Replace>
+
+  </LocalizedText>
+</GameData>

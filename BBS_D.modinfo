@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="dffff0a9-79f9-42a0-b2bc-8209657201a0" version="o-0.99">
+  <Properties>
+    <Name>Better Balanced Start (Script - Beta - v0.99 o)</Name>
+    <Description>BBS will balance the starting location of major civilizations, Version Beta v0.99 o</Description>
+    <Created>1569957471</Created>
+    <Teaser>BBS will balance the starting location of major civilizations</Teaser>
+    <Authors>codenaugh, Wazabaza, D. / Jack The Narrator</Authors>
+    <SpecialThanks>Civfanatics.com, CPL, VonHolio, Braizh, Kilua, Gedemon, Je, EvilVictor</SpecialThanks>
+    <CompatibleVersions>1.2,2.0</CompatibleVersions>
+  </Properties>
+  <Dependencies>
+    <Mod id="4873eb62-8ccc-4574-b784-dda455e74e68" title="Expansion: Gathering Storm" />
+  </Dependencies>
+    <InGameActions>
+    <ImportFiles id="Map_BBS">
+      <File>Data/BBS Maps/Continents.lua</File>
+	<File>Data/BBS Maps/Continents_Islands.lua</File>
+	<File>Data/BBS Maps/Fractal.lua</File>
+	<File>Data/BBS Maps/InlandSea.lua</File>
+	<File>Data/BBS Maps/Island_Plates.lua</File>
+	<File>Data/BBS Maps/Lakes.lua</File>
+	<File>Data/BBS Maps/Pangaea.lua</File>
+	<File>Data/BBS Maps/Primordial.lua</File>
+	<File>Data/BBS Maps/Seven_Seas.lua</File>
+	<File>Data/BBS Maps/Shuffle.lua</File>
+	<File>Data/BBS Maps/Splintered_Fractal.lua</File>
+	<File>Data/BBS Maps/Small_Continents.lua</File>
+	<File>Data/BBS Maps/Terra.lua</File>
+	<File>Data/BBS Maps/Tilted_Axis.lua</File>
+	<File>Data/BBS Maps/Archipelago_XP2.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_AssignStartingPlots.lua</File>
+	<File>Data/BBS Maps/Utility/DW_CoastalLowlands.lua</File>
+	<File>Data/BBS Maps/Utility/DW_FeatureGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/DW_MapUtilities.lua</File>
+	<File>Data/BBS Maps/Utility/DW_MountainsCliffs.lua</File>
+	<File>Data/BBS Maps/Utility/DW_RiversLakes.lua</File>
+	<File>Data/BBS Maps/Utility/DW_TerrainGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_TerrainGenerator.lua</File>
+    </ImportFiles>
+    <UpdateDatabase id="BBS_Global_Parameters">
+      	<Properties>
+        	<LoadOrder>1001</LoadOrder>
+      	</Properties>
+      	<File>Configuration/Config.sql</File>
+    </UpdateDatabase>
+    <ImportFiles id="ExtraMapScriptImport">
+      <Properties>
+        <LoadOrder>1001</LoadOrder>
+      </Properties>
+      	<File>Data/BBS Maps/PerfectWorld6.lua</File>
+		<File>Data/BBS Maps/DWArchipelago.lua</File>
+		<File>Data/BBS Maps/DWContinents.lua</File>
+		<File>Data/BBS Maps/DWFractal.lua</File>
+		<File>Data/BBS Maps/DWPangaea.lua</File>
+		<File>Data/BBS Maps/DWSmallContinents.lua</File>
+		<File>Data/BBS Maps/DWMixedLand.lua</File>
+		<File>Data/BBS Maps/DWMixedIslands.lua</File>
+    </ImportFiles>
+        <AddUserInterfaces>
+			<Properties>
+				<Context>InGame</Context>
+			</Properties>
+			<File>UI/BBS_UI.xml</File>
+		</AddUserInterfaces>
+		<ReplaceUIScript>
+			<Properties>
+				<LuaContext>StatusMessagePanel</LuaContext>
+				<LuaReplace>UI/StatusMessagePanelAddOn.lua</LuaReplace>
+			</Properties>
+		</ReplaceUIScript>
+        <AddGameplayScripts id="D">
+            <File>Data/BBS_D.lua</File>
+        </AddGameplayScripts>
+    </InGameActions>
+    <FrontEndActions>
+        <UpdateDatabase id="BBS_SETTINGS">
+            	<File>Configuration/Config.xml</File>
+        </UpdateDatabase>
+        <UpdateText id="BBS_SETTINGS_TEXTS">
+            <File>Configuration/ConfigText.xml</File>
+        </UpdateText>
+    </FrontEndActions>
+        
+    <Files>
+	<File>UI/BBS_UI.xml</File>
+	<File>UI/BBS_UI.lua</File>
+	<File>UI/StatusMessagePanelAddOn.lua</File>
+        <File>Data/BBS_D.lua</File>
+	<File>Data/BBS Maps/Continents.lua</File>
+	<File>Data/BBS Maps/Continents_Islands.lua</File>
+	<File>Data/BBS Maps/Fractal.lua</File>
+	<File>Data/BBS Maps/InlandSea.lua</File>
+	<File>Data/BBS Maps/Island_Plates.lua</File>
+	<File>Data/BBS Maps/Lakes.lua</File>
+	<File>Data/BBS Maps/Pangaea.lua</File>
+	<File>Data/BBS Maps/Primordial.lua</File>
+	<File>Data/BBS Maps/Seven_Seas.lua</File>
+	<File>Data/BBS Maps/Shuffle.lua</File>
+	<File>Data/BBS Maps/Splintered_Fractal.lua</File>
+	<File>Data/BBS Maps/Small_Continents.lua</File>
+	<File>Data/BBS Maps/Terra.lua</File>
+	<File>Data/BBS Maps/Tilted_Axis.lua</File>
+	<File>Data/BBS Maps/Archipelago_XP2.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_AssignStartingPlots.lua</File>
+	<File>Data/BBS Maps/Utility/DW_CoastalLowlands.lua</File>
+	<File>Data/BBS Maps/Utility/DW_FeatureGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/DW_MapUtilities.lua</File>
+	<File>Data/BBS Maps/Utility/DW_MountainsCliffs.lua</File>
+	<File>Data/BBS Maps/Utility/DW_RiversLakes.lua</File>
+	<File>Data/BBS Maps/Utility/DW_TerrainGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_TerrainGenerator.lua</File>
+    	<File>Data/BBS Maps/PerfectWorld6.lua</File>
+	<File>Data/BBS Maps/DWArchipelago.lua</File>
+	<File>Data/BBS Maps/DWContinents.lua</File>
+	<File>Data/BBS Maps/DWFractal.lua</File>
+	<File>Data/BBS Maps/DWPangaea.lua</File>
+	<File>Data/BBS Maps/DWSmallContinents.lua</File>
+	<File>Data/BBS Maps/DWMixedLand.lua</File>
+	<File>Data/BBS Maps/DWMixedIslands.lua</File>
+        <File>Configuration/Config.xml</File>
+        <File>Configuration/ConfigText.xml</File>
+	<File>Configuration/Config.sql</File>
+	<File>Configuration/Config_bias.sql</File>
+    </Files>
+</Mod>
