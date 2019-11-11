@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="9">
-  <Properties>
-    <Name>Better Balanced Starts v9</Name>
-    <Description>
-		Creates a map with more balanced placement of both city states and players.[NEWLINE][NEWLINE]Slightly less desert overall, desert further from tundra, and some snow turned into tundra.
-	</Description>
-    <Teaser>Creates a map with a more balanced placement of both city states and players.</Teaser>
-    <Created>1569957471</Created>
-    <Teaser>BBS will balance the starting location of major civilizations</Teaser>
-    <Authors>D. / Jack The Narrator, Wazabaza, codenaugh</Authors>
-    <SpecialThanks>Civfanatics.com, CPL, VonHolio, Braizh, Kilua, Gedemon, Je, EvilVictor</SpecialThanks>
-    <CompatibleVersions>1.2,2.0</CompatibleVersions>
-  </Properties>
-  <Dependencies>
-    <Mod id="4873eb62-8ccc-4574-b784-dda455e74e68" title="Expansion: Gathering Storm" />
-  </Dependencies>
+	<Properties>
+		<Name>Better Balanced Starts v9</Name>
+		<Description>Creates a map with more balanced yields and placement of both city states and players.[NEWLINE][NEWLINE]Slightly less desert overall, desert further from tundra, and some snow turned into tundra.</Description>
+		<Teaser>Creates a map with more balanced yields and placement of both city states and players.</Teaser>
+		<Authors>D. / Jack The Narrator, Wazabaza, codenaugh</Authors>
+		<SpecialThanks>Civfanatics.com, CPL, VonHolio, Braizh, Kilua, Gedemon, Je, EvilVictor</SpecialThanks>
+		<CompatibleVersions>1.2,2.0</CompatibleVersions>
+	</Properties>
+	<Dependencies>
+		<Mod id="4873eb62-8ccc-4574-b784-dda455e74e68" title="Expansion: Gathering Storm" />
+	</Dependencies>
     <InGameActions>
 		<ImportFiles id="Map_BBS">
 			<File>Data/BBS Maps/Continents.lua</File>
@@ -48,9 +44,9 @@
 			<File>Configuration/Config.sql</File>
 		</UpdateDatabase>
 		<ImportFiles id="ExtraMapScriptImport">
-		<Properties>
-			<LoadOrder>1001</LoadOrder>
-		</Properties>
+			<Properties>
+				<LoadOrder>1001</LoadOrder>
+			</Properties>
 			<File>Data/BBS Maps/PerfectWorld6.lua</File>
 			<File>Data/BBS Maps/DWArchipelago.lua</File>
 			<File>Data/BBS Maps/DWContinents.lua</File>
