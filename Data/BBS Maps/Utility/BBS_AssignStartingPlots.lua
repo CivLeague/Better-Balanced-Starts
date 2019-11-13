@@ -890,7 +890,7 @@ end
 ------------------------------------------------------------------------------
 function BBS_AssignStartingPlots:__MinorMajorCivBuffer(plot)
     -- Checks to see if there are majors in the given distance for this minor civ
-    local iMaxStart = GlobalParameters.START_DISTANCE_MINOR_MAJOR_CIVILIZATION or 7;
+    local iMaxStart = GlobalParameters.START_DISTANCE_MINOR_MAJOR_CIVILIZATION or 8;
     --local iMaxStart = 8;
     local iSourceIndex = plot:GetIndex();
     if(self.waterMap) then
@@ -906,12 +906,12 @@ end
 ------------------------------------------------------------------------------
 function BBS_AssignStartingPlots:__MinorMinorCivBuffer(plot)
     -- Checks to see if there are minors in the given distance for this minor civ
-    local iMaxStart = GlobalParameters.START_DISTANCE_MINOR_CIVILIZATION_START or 6;
-    iMaxStart = iMaxStart - GlobalParameters.START_DISTANCE_RANGE_MINOR or 2;
-    --local iMaxStart = 6;
+    local iMaxStart = GlobalParameters.START_DISTANCE_MINOR_CIVILIZATION_START or 7;
+    --iMaxStart = iMaxStart - GlobalParameters.START_DISTANCE_RANGE_MINOR or 2;
+	--local iMaxStart = 7;
     local iSourceIndex = plot:GetIndex();
     for i, minorPlot in ipairs(self.minorStartPlots) do
-        if(Map.GetPlotDistance(iSourceIndex, minorPlot:GetIndex()) <= iMaxStart + self.iDistance_minor_minor) then
+        if(Map.GetPlotDistance(iSourceIndex, minorPlot:GetIndex()) <= iMaxStart) then
             return false;
         end
     end
