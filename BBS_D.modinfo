@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="9">
+<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="9.1">
 	<Properties>
-		<Name>Better Balanced Starts v9</Name>
+		<Name>Better Balanced Starts v9.1</Name>
 		<Description>Creates a map with more balanced yields and placement of both city states and players.[NEWLINE][NEWLINE]Slightly less desert overall, desert further from tundra, and some snow turned into tundra.</Description>
 		<Teaser>Creates a map with more balanced yields and placement of both city states and players.</Teaser>
 		<Authors>D. / Jack The Narrator, Wazabaza, codenaugh</Authors>
