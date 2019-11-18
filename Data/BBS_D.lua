@@ -114,7 +114,19 @@ local bBiasFail = false;
 --		Corrected a seed-dependent bug on larger map where CS placement would leave the algo in limbo and not delegate back to firaxis (=> VonHolio)
 --	oo	Fix the wheat on Oasis (=> VonHolio)
 --		Bumped floodplains tiers for Nubia (but would need a BBG fix here)
---	todo	Introduced low level biases for CS for better spacing
+-- 	v1.0 Aka v9.1
+--		removed Nubia references as Desert civ (=> codenaught)
+--		Introduced hard minimum to minor minor of 5 to reducing clumping (=> codenaught)
+-- 	1.01	Nubia doesn't get its floodplains reduced 
+--		Slightly lowered the amount of sea in Pangaea map to reduce clumping
+--		Reduced the required fertility for CS
+--		Introduced low level biases for CS for better spacing
+--	1.02	Guarantee Fresh Water for Major Civ even if Firaxis placement is incorrect (=> Slay)
+--		Increase the minimum distance between CS, CS to Major in BBS placement
+--		Introduce a new system removing CS if they are too close in BBS placement
+--		Introduce a new system removing CS if they are too close in Firaxis placement 
+--		Coastal Terraforming now take into account existing reef (=> We4x)
+--		Remap warning message will stay on for a much longer duration (=> Eiffel)
 --	todo	Goodys Hut style
 -- 	
 -- todo	test it like Hell to ensure it is bug free
@@ -308,6 +320,30 @@ function BBS_Script()
 		tempMajorList = PlayerManager.GetAliveMajorIDs();
 		iNumMajCivs = PlayerManager.GetAliveMajorsCount();
 
+		-- Check for Minor placement failure
+
+		if (Game:GetProperty("BBS_MINOR_FAILING_TOTAL") ~= nil) then
+			-- BBS placement true
+			if (Game:GetProperty("BBS_MINOR_FAILING_TOTAL") > 0) then
+				__Debug("Minor failure module:",Game:GetProperty("BBS_MINOR_FAILING_TOTAL")," Minor Civs are failing.")
+				for j = 1, Game:GetProperty("BBS_MINOR_FAILING_TOTAL") do
+					if (Game:GetProperty("BBS_MINOR_FAILING_ID_"..j) ~= nil) then
+						local playerUnits;
+						playerUnits = Players[Game:GetProperty("BBS_MINOR_FAILING_ID_"..j)]:GetUnits();
+						for k, unit in playerUnits:Members() do
+							playerUnits:Destroy(unit)			
+						end
+						__Debug("Minor failure module: Minor Player", Game:GetProperty("BBS_MINOR_FAILING_ID_"..j)," has been eliminated.")
+					end
+				end
+				else
+				__Debug("Minor failure module: All Minor Civs have been placed.")
+			end
+			else
+			-- Firaxis placement true
+			__Debug("Minor failure module: Firaxis placement only check if minimum distance are met")
+		end
+
 
 		-- Check Distances if Firaxis Placement Algo has been used
 		local bError_proximity = false;
@@ -322,23 +358,57 @@ function BBS_Script()
 						local distance = Map.GetPlotDistance(pStartPlot_i:GetIndex(),pStartPlot_j:GetIndex())
 						__Debug("I:", i,"J:", j,"Distance:",distance)
 						if (distance < 6 or (distance < 9 and j < PlayerManager.GetAliveMajorsCount())) then
-							bError_proximity = true;
 							print ("Init: Minimum CPL distance rule breached");
-							--Game:SetProperty("BBS_DISTANCE_ERROR","Player "..i.." is only "..distance.." tiles away from "..PlayerConfigurations[j]:GetCivilizationTypeName())
+							if (Game:GetProperty("BBS_MINOR_FAILING_TOTAL") == nil) then
+								Game:SetProperty("BBS_MINOR_FAILING_TOTAL",0)
+							end
 							if ( j < PlayerManager.GetAliveMajorsCount() ) then
+								bError_proximity = true;
 								Game:SetProperty("BBS_DISTANCE_ERROR","Two Players are only "..distance.." tiles away from each other and allowed to remap as per CPL rules.")
 								else
-								if ( Game:GetProperty("BBS_DISTANCE_ERROR") == nil ) then
-									Game:SetProperty("BBS_DISTANCE_ERROR","One Player is only "..distance.." tiles away from a City-State and is allowed to remap as per CPL rules.")
+								-- Let's kill a CS to ensure the game is within CPL rules
+								local playerUnits;
+								playerUnits = Players[j]:GetUnits();
+								for k, unit in playerUnits:Members() do
+									playerUnits:Destroy(unit)			
 								end
+								__Debug("Minor failure module: Firaxis Placement: Minor Player", j," has been eliminated (too close to major).")
+								Game:SetProperty("BBS_MINOR_FAILING_ID_"..j,j)
+								Game:SetProperty("BBS_MINOR_FAILING_TOTAL",Game:GetProperty("BBS_MINOR_FAILING_TOTAL")+1)
 							end
 						end
 					end
 				end
 			end
 		end
+		-- Minor Minor
+		for i = PlayerManager.GetAliveMajorsCount(),  PlayerManager.GetAliveMajorsCount() + PlayerManager.GetAliveMinorsCount() - 1 do
+			local pStartPlot_i = Players[i]:GetStartingPlot()
+			for j = PlayerManager.GetAliveMajorsCount(),  PlayerManager.GetAliveMajorsCount() + PlayerManager.GetAliveMinorsCount() - 1 do
+				local pStartPlot_j = Players[j]:GetStartingPlot()
+				if (i ~= j and Game:GetProperty("BBS_MINOR_FAILING_ID_"..i) == nil and Game:GetProperty("BBS_MINOR_FAILING_ID_"..j) == nil) then
+					local distance = Map.GetPlotDistance(pStartPlot_i:GetIndex(),pStartPlot_j:GetIndex())
+					__Debug("I:", i,"J:", j,"Distance:",distance)
+					if (distance < 7 ) then
+						if (Game:GetProperty("BBS_MINOR_FAILING_TOTAL") == nil) then
+							Game:SetProperty("BBS_MINOR_FAILING_TOTAL",0)
+						end
+						-- Let's kill a CS to avoid a CS settler roaming and breaking CPL rules
+						local playerUnits;
+						playerUnits = Players[j]:GetUnits();
+						for k, unit in playerUnits:Members() do
+							playerUnits:Destroy(unit)			
+						end
+						__Debug("Minor failure module: Firaxis Placement: Minor Player", j," has been eliminated (too close to minor).")
+						Game:SetProperty("BBS_MINOR_FAILING_ID_"..j,j)
+						Game:SetProperty("BBS_MINOR_FAILING_TOTAL",Game:GetProperty("BBS_MINOR_FAILING_TOTAL")+1)
+					end
+				end	
+			end
 		end
-
+		end
+		
+		
 
 		-- Kills everyone and force remap if needed
 		local iNumMajCivs = 0;
@@ -407,6 +477,24 @@ function BBS_Script()
 
 		__Debug("Terraforming Starts")
 
+		-- Fix lack of freshwater
+
+		for i = 0, iNumMajCivs -1 do
+			-- Added Spectator mod handling if a major player isn't detected
+			if (majList[i] ~= nil) then
+				if(majList[i].leader ~= "LEADER_SPECTATOR" and PlayerConfigurations[i]:GetHandicapTypeID() ~= 2021024770) then
+				-- Check for freshwater
+					local wplot = Map.GetPlot(majList[i].plotX,majList[i].plotY)
+					if (wplot:IsCoastalLand() == false and wplot:IsWater() == false and  wplot:IsRiver() == false and wplot:IsFreshWater() == false) then
+					-- Fix No Water
+						__Debug("Water Terraforming Start X: ", majList[i].plotX, "Start Y: ", majList[i].plotY, "Player: ",i," ",majList[i].leader, majList[i].civ);
+						Terraforming_Water(Map.GetPlot(majList[i].plotX,majList[i].plotY));
+					end
+				end
+			end
+		end
+
+
 		-- Look at Floodplains and remove the excess in the starting circle to allow the balancing to work properly
 
 		for i = 0, iNumMajCivs -1 do
@@ -414,7 +502,7 @@ function BBS_Script()
 			if (majList[i] ~= nil) then
 				if(majList[i].leader ~= "LEADER_SPECTATOR" and PlayerConfigurations[i]:GetHandicapTypeID() ~= 2021024770) then
 				-- Do not reduce floodplain for Egypt or Desert Civ with Desert Floodplains
-				if ((majList[i].flood > 4) and majList[i].civ ~= "CIVILIZATION_EGYPT" and majList[i].civ ~= "CIVILIZATION_MALI"  and (majList[i].civ == "CIVILIZATION_MALI" and majList[i].desert_start <2)) then
+				if ((majList[i].flood > 4) and majList[i].civ ~= "CIVILIZATION_EGYPT" and majList[i].civ ~= "CIVILIZATION_MALI" and (majList[i].civ == "CIVILIZATION_MALI" and majList[i].desert_start <2)) then
 					-- Check for Floodplains Start
 					__Debug("Floodplains Terraforming Start X: ", majList[i].plotX, "Start Y: ", majList[i].plotY, "Player: ",i," ",majList[i].leader, majList[i].civ);
 					Terraforming_Flood(Map.GetPlot(majList[i].plotX,majList[i].plotY), iBalancingThree);
@@ -3132,6 +3220,37 @@ end
 
 ------------------------------------------------------------------------------
 
+function Terraforming_Water(plot)
+	local iResourcesInDB = 0;
+	local terrainType = plot:GetTerrainType();
+	local featureType = plot:GetFeatureType();
+	local gridWidth, gridHeight = Map.GetGridSize();
+	local adjacentPlot = nil;
+
+	--------------------------------------------------------------------------------------------------------------
+	-- Terraforming Water Start ----------------------------------------------------------------------------
+	--------------------------------------------------------------------------------------------------------------
+		
+	for i = 0, 5 do
+		adjacentPlot = GetAdjacentTiles(plot, i);
+
+		if (adjacentPlot ~=nil) then
+			if (adjacentPlot:GetResourceCount() < 1) then
+				__Debug("Terraforming Water X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Added: Water Lake");
+				TerrainBuilder.SetFeatureType(adjacentPlot,-1);
+				TerrainBuilder.SetTerrainType(adjacentPlot, 15);
+				return
+			end
+		end
+
+	end
+end
+
+------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------
+
 function Terraforming_Flood(plot, intensity)
 	-- flag = 0 normal
 	-- flag = 1 tundra civ
@@ -3245,13 +3364,11 @@ function Terraforming_Coastal(plot, intensity, post_correction)
 
 	end
 		
-
+	
 
 	-- Step 1  Getting a Valid Harbor
 	for i = 0, 5 do
 		adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), i);
-		--__Debug("Evaluate Start X: ", adjacentPlot:GetX(), "Evaluate Start Y: ", adjacentPlot:GetY(), "Terrain Type: ", terrainType);
-		--__Debug("Evaluate Start X: ", adjacentPlot:GetX(), "Evaluate Start Y: ", adjacentPlot:GetY(), "Feature Type: ", adjacentPlot:GetFeatureType());
 
 		if (adjacentPlot ~=nil) then
 			if (adjacentPlot:IsWater() == true) then
@@ -3285,12 +3402,23 @@ function Terraforming_Coastal(plot, intensity, post_correction)
 		end
 	end
 
+	-- count reefs
+	count = 0
+	for i = 0, 60 do
+		adjacentPlot = GetAdjacentTiles(plot, i);
+		if (adjacentPlot ~=nil) then
+			if (adjacentPlot:GetFeatureType() == g_FEATURE_REEF) then
+				count = count + 1;
+			end
+		end
+	end
+
+
 	if (post_correction == false) then
 	-- Step 3 Populating the harbor surrounding tiles
-	count = 0;
 	if (harborplot ~= nil) then
 		if(harborPlot:GetX() >= 0 and harborPlot:GetY() < gridHeight) then
-			for i = 0, 5 do
+			for i = 0, 17 do
 				adjacentPlot = Map.GetAdjacentPlot(plot:GetX(), plot:GetY(), i);
 				local rng = TerrainBuilder.GetRandomNumber(100,"test")/100;
 				if (adjacentPlot ~=nil) then
@@ -3300,7 +3428,7 @@ function Terraforming_Coastal(plot, intensity, post_correction)
 							TerrainBuilder.SetFeatureType(adjacentPlot,g_FEATURE_REEF);
 							count = count + 1;
 							local rng = TerrainBuilder.GetRandomNumber(100,"test")/100;
-							elseif (rng > limit_2 and adjacentPlot:GetResourceType() == -1) then
+							elseif (rng/count > limit_2 and adjacentPlot:GetResourceType() == -1) then
 								if(ResourceBuilder.CanHaveResource(adjacentPlot, 5)) then
 									ResourceBuilder.SetResourceType(adjacentPlot, 5, 1);
 									__Debug("Coastal Terraforming X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Added: Fish");
@@ -3314,7 +3442,6 @@ function Terraforming_Coastal(plot, intensity, post_correction)
 	end
 		
 	-- Step 4 Ocean to Coast and Ice removal
-	count = 0;
 	for i = 0, 60 do
 
 		if (i < 6) then
@@ -3330,23 +3457,23 @@ function Terraforming_Coastal(plot, intensity, post_correction)
 			terrainType = adjacentPlot:GetTerrainType();
 			rng = TerrainBuilder.GetRandomNumber(100,"test")/100;
 			if((terrainType == 16) and rng > limit) then
-				__Debug("Terraforming X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Changing Ocean to Coast tile",i);
+				__Debug("Terraforming Coastal X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Changing Ocean to Coast tile",i);
 				TerrainBuilder.SetTerrainType(adjacentPlot,15);
 				local rng = TerrainBuilder.GetRandomNumber(100,"test")/100;
-				if (adjacentPlot:GetFeatureType() == -1 and rng > limit and adjacentPlot:GetResourceType() == -1 and count <2) then
+				if (adjacentPlot:GetFeatureType() == -1 and rng > limit and adjacentPlot:GetResourceType() == -1 and ( (count <3 and i <17) or (count < 4 and i > 30) ) and (post_correction == false) ) then
 					TerrainBuilder.SetFeatureType(adjacentPlot,g_FEATURE_REEF);
-					__Debug("Terraforming X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Added: Reef",i);
+					__Debug("Coastal Terraforming X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Added: Reef",i);
 					count = count + 1;
 					local rng = TerrainBuilder.GetRandomNumber(100,"test")/100;
-					if(rng > limit and adjacentPlot:GetResourceType() == -1) then 
+					if( (rng / count / count ) > limit and adjacentPlot:GetResourceType() == -1) then 
 						-- Reef with fish 
-						__Debug("Prod Balancing X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Added: Fish");
+						__Debug("Coastal Terraforming X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Added: Fish");
 						ResourceBuilder.SetResourceType(adjacentPlot, 5, 1);
 					end
 				end
 
 				if (adjacentPlot:GetFeatureType() == 1 and rng > limit/2) then
-					__Debug("Terraforming X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Removing Ice",i);
+					__Debug("Costal Terraforming X: ", adjacentPlot:GetX(), "Y: ", adjacentPlot:GetY(), "Removing Ice",i);
 					TerrainBuilder.SetFeatureType(adjacentPlot,-1);
 				end
 			end
@@ -3357,7 +3484,7 @@ function Terraforming_Coastal(plot, intensity, post_correction)
 	end
 
 	end
-
+	__Debug("Coastal Terraforming : Total Reefs Count:", count);
 
 end
 
@@ -4595,7 +4722,7 @@ end
 
 function Init_D_Balance()
 	print ("---------------------------------------------------------");
-	print ("------------- BBS Script v.0.99 o -D- Init --------------");
+	print ("------------- BBS Script v.1.02    -D- Init -------------");
 	print ("---------------------------------------------------------");
 	if (Game:GetProperty("BBS_INIT_COUNT") == nil) then
 		Game:SetProperty("BBS_INIT_COUNT",1)

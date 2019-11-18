@@ -43,6 +43,12 @@
 			</Properties>
 			<File>Configuration/Config.sql</File>
 		</UpdateDatabase>
+		<UpdateDatabase id="BBS_Minor_Bias_Parameters">
+			<Properties>
+				<LoadOrder>1001</LoadOrder>
+			</Properties>
+			<File>Configuration/Config_minor_bias.sql</File>
+		</UpdateDatabase>
 		<ImportFiles id="ExtraMapScriptImport">
 			<Properties>
 				<LoadOrder>1001</LoadOrder>
@@ -121,6 +127,6 @@
 		<File>Configuration/Config.xml</File>
 		<File>Configuration/ConfigText.xml</File>
 		<File>Configuration/Config.sql</File>
-		<File>Configuration/Config_bias.sql</File>
+		<File>Configuration/Config_minor_bias.sql</File>
     </Files>
 </Mod>

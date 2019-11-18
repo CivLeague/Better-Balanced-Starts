@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---	FILE:	BBS_AssignStartingPlot.lua    -- 0.99 o
+--	FILE:	BBS_AssignStartingPlot.lua    -- 1.02
 --	AUTHOR:  D. / Jack The Narrator, Kilua
 --	PURPOSE: Custom Spawn Placement Script
 ------------------------------------------------------------------------------
@@ -12,7 +12,8 @@ include( "TerrainGenerator" );
 include( "NaturalWonderGenerator" );
 include( "ResourceGenerator" );
 
-local bError = false;
+local bError_major = false;
+local bError_minor = false;
 local bError_proximity = false;
 
 ------------------------------------------------------------------------------
@@ -111,15 +112,19 @@ function BBS_AssignStartingPlots.Create(args)
 
     instance:__InitStartingData()
 	
-	if (bError == false and bError_proximity == false) then
+	if (bError_major == false and bError_minor == false and bError_proximity == false) then
 		print("BBS_AssignStartingPlots: Successfully ran!")
 		Game:SetProperty("BBS_RESPAWN",true)
     		return instance
-		elseif (bError == true) then
-		print("BBS_AssignStartingPlots: An error has occured: Players are missing.")
+		elseif (bError_major == true) then
+		print("BBS_AssignStartingPlots: An error has occured: A major Civilization is missing.")
 		Game:SetProperty("BBS_RESPAWN",false)
 		Game:SetProperty("BBS_ERROR_NEWPLAYER",true)
 		return nil
+		elseif (bError_minor == true) then
+		print("BBS_AssignStartingPlots: An error has occured: A city-state is missing.")
+		Game:SetProperty("BBS_RESPAWN",true)
+		return instance
 		else
 		print("BBS_AssignStartingPlots: An error has occured: Minimum Distances.")
 		Game:SetProperty("BBS_RESPAWN",false)
@@ -293,25 +298,57 @@ function BBS_AssignStartingPlots:__InitStartingData()
 
 	-- Sanity check
 
-	for i = 0, PlayerManager.GetAliveMinorsCount() + PlayerManager.GetAliveMajorsCount() - 1 do
+	for i = 0, PlayerManager.GetAliveMajorsCount() - 1 do
 		local startPlot = Players[i]:GetStartingPlot();
-		if startPlot == nil then
-			bError = true
-			self:__Debug("Error Player is missing:", i);
+		if (startPlot == nil) then
+			bError_major = true
+			self:__Debug("Error Major Player is missing:", i);
 		end
 	end
+
+	if (Game:GetProperty("BBS_MINOR_FAILING_TOTAL") == nil) then
+		local count = 0
+		for i = PlayerManager.GetAliveMajorsCount(), PlayerManager.GetAliveMinorsCount() + PlayerManager.GetAliveMajorsCount() - 1 do
+		
+			local startPlot = Players[i]:GetStartingPlot();
+			print(i, count)
+			if (startPlot == nil) then
+				self:__Debug("Error Minor Player is missing:", i);
+				count = count + 1
+				Game:SetProperty("BBS_MINOR_FAILING_ID_"..count,i)
+				startPlot = Map.GetPlotByIndex(PlayerManager.GetAliveMajorsCount()+PlayerManager.GetAliveMinorsCount()+count);
+				local minPlayer = Players[i]
+				minPlayer:SetStartingPlot(startPlot);
+				self:__Debug("Minor Temp Start X: ", startPlot:GetX(), "Y: ", startPlot:GetY());
+				else
+				self:__Debug("Minor", PlayerConfigurations[i]:GetCivilizationTypeName(), "Start X: ", startPlot:GetX(), "Y: ", startPlot:GetY());
+			end
+		end
+
+		Game:SetProperty("BBS_MINOR_FAILING_TOTAL",count)
+	end
+
+	self:__Debug(Game:GetProperty("BBS_MINOR_FAILING_TOTAL"),"Minor Players are missing");
+
+	if (Game:GetProperty("BBS_MINOR_FAILING_TOTAL") > 0) then
+		bError_minor = true
+		else
+		bError_minor = false
+	end
 	
-	if (bError ~= true) then
+	if (bError_major ~= true) then
 		for i = 0, PlayerManager.GetAliveMajorsCount() - 1 do
 			if (PlayerConfigurations[i]:GetLeaderTypeName() ~= "LEADER_SPECTATOR" and PlayerConfigurations[i]:GetHandicapTypeID() ~= 2021024770 and PlayerConfigurations[i]:GetLeaderTypeName() ~= "LEADER_KUPE") then
 				local pStartPlot_i = Players[i]:GetStartingPlot()
 				for j = 0, PlayerManager.GetAliveMajorsCount() + PlayerManager.GetAliveMinorsCount() - 1 do
 					if (PlayerConfigurations[j]:GetLeaderTypeName() ~= "LEADER_SPECTATOR" and PlayerConfigurations[j]:GetHandicapTypeID() ~= 2021024770 and PlayerConfigurations[j]:GetLeaderTypeName() ~= "LEADER_KUPE" and i ~= j) then
 						local pStartPlot_j = Players[j]:GetStartingPlot()
-						local distance = Map.GetPlotDistance(pStartPlot_i:GetIndex(),pStartPlot_j:GetIndex())
-						--print("I:", i,"J:", j,"Distance:",distance)
-						if (distance < 6 or (distance < 9 and j < PlayerManager.GetAliveMajorsCount())) then
-							bError_proximity = true;
+						if (pStartPlot_j ~= nil) then
+							local distance = Map.GetPlotDistance(pStartPlot_i:GetIndex(),pStartPlot_j:GetIndex())
+							self:__Debug("I:", i,"J:", j,"Distance:",distance)
+							if (distance < 6 or (distance < 9 and j < PlayerManager.GetAliveMajorsCount())) then
+								bError_proximity = true;
+							end
 						end
 					end
 				end
@@ -555,7 +592,7 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major)
 	end
         ratedPlot.Score = ratedPlot.Score + self:__CountAdjacentYieldsInRange(plot, major);
 	if (plot:IsFreshWater() == true or plot:IsCoastalLand() == true) then
-		ratedPlot.Score = ratedPlot.Score + 25;
+		ratedPlot.Score = ratedPlot.Score + 5;
 	end
 	ratedPlot.Score = math.floor(ratedPlot.Score);
         --self:__Debug("Plot :", plot:GetX(), ":", plot:GetY(), "Score :", ratedPlot.Score);
@@ -881,7 +918,7 @@ function BBS_AssignStartingPlots:__MajorCivBuffer(plot)
     --local iMaxStart = 10;
     local iSourceIndex = plot:GetIndex();
     for i, majorPlot in ipairs(self.majorStartPlots) do
-        if(Map.GetPlotDistance(iSourceIndex, majorPlot:GetIndex()) <= iMaxStart + self.iDistance) then
+        if(Map.GetPlotDistance(iSourceIndex, majorPlot:GetIndex()) <= iMaxStart + self.iDistance or Map.GetPlotDistance(iSourceIndex, majorPlot:GetIndex()) < 13 + self.iDistance) then
             return false;
         end
     end
@@ -897,7 +934,7 @@ function BBS_AssignStartingPlots:__MinorMajorCivBuffer(plot)
         iMaxStart = iMaxStart - 1;
     end
     for i, majorPlot in ipairs(self.majorStartPlots) do
-        if(Map.GetPlotDistance(iSourceIndex, majorPlot:GetIndex()) <= iMaxStart + self.iDistance_minor) then
+        if(Map.GetPlotDistance(iSourceIndex, majorPlot:GetIndex()) <= iMaxStart + self.iDistance_minor or Map.GetPlotDistance(iSourceIndex, majorPlot:GetIndex()) < 11 + self.iDistance_minor) then
             return false;
         end
     end
@@ -911,7 +948,7 @@ function BBS_AssignStartingPlots:__MinorMinorCivBuffer(plot)
 	--local iMaxStart = 7;
     local iSourceIndex = plot:GetIndex();
     for i, minorPlot in ipairs(self.minorStartPlots) do
-        if(Map.GetPlotDistance(iSourceIndex, minorPlot:GetIndex()) <= iMaxStart) then
+        if(Map.GetPlotDistance(iSourceIndex, minorPlot:GetIndex()) <= iMaxStart or Map.GetPlotDistance(iSourceIndex, minorPlot:GetIndex()) < 8) then
             return false;
         end
     end
