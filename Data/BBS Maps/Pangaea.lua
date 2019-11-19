@@ -149,7 +149,7 @@ function GenerateMap()
 	-- START_MIN_Y and START_MAX_Y is the percent of the map ignored for major civs' starting positions.
 	local args = {
 		MIN_MAJOR_CIV_FERTILITY = 300,
-		MIN_MINOR_CIV_FERTILITY = 20, 
+		MIN_MINOR_CIV_FERTILITY = 5, 
 		MIN_BARBARIAN_FERTILITY = 1,
 		START_MIN_Y = 15,
 		START_MAX_Y = 15,
@@ -166,9 +166,9 @@ function GeneratePlotTypes(world_age)
 	print("Generating Plot Types");
 	local plotTypes = {};
 
-	local sea_level_low = 53;
-	local sea_level_normal = 58;
-	local sea_level_high = 63;
+	local sea_level_low = 45; -- 53
+	local sea_level_normal = 53;  -- 58
+	local sea_level_high = 58;  -- 63
 
 	local grain_amount = 3;
 	local adjust_plates = 1.3;

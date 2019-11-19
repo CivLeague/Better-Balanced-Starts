@@ -146,7 +146,7 @@ function GenerateMap()
 	-- START_MIN_Y and START_MAX_Y is the percent of the map ignored for major civs' starting positions.
 	local args = {
 		MIN_MAJOR_CIV_FERTILITY = 150,
-		MIN_MINOR_CIV_FERTILITY = 20, 
+		MIN_MINOR_CIV_FERTILITY = 5, 
 		MIN_BARBARIAN_FERTILITY = 1,
 		START_MIN_Y = 15,
 		START_MAX_Y = 15,

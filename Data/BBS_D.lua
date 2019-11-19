@@ -127,6 +127,8 @@ local bBiasFail = false;
 --		Introduce a new system removing CS if they are too close in Firaxis placement 
 --		Coastal Terraforming now take into account existing reef (=> We4x)
 --		Remap warning message will stay on for a much longer duration (=> Eiffel)
+--	1.03	Remove Nubia's file => moved to BBG
+--		Added an sql dependency for people not owning the Viking DLC (=> DeluxePhilippe)
 --	todo	Goodys Hut style
 -- 	
 -- todo	test it like Hell to ensure it is bug free
@@ -4722,7 +4724,7 @@ end
 
 function Init_D_Balance()
 	print ("---------------------------------------------------------");
-	print ("------------- BBS Script v.1.02    -D- Init -------------");
+	print ("------------- BBS Script v.1.03    -D- Init -------------");
 	print ("---------------------------------------------------------");
 	if (Game:GetProperty("BBS_INIT_COUNT") == nil) then
 		Game:SetProperty("BBS_INIT_COUNT",1)
