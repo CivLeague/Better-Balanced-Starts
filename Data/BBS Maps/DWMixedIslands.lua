@@ -29,31 +29,9 @@ local world_age_old = 2;
 -------------------------------------------------------------------------------
 function BBS_Assign(args)
 	print("BBS_Assign: Injecting Spawn Placement")
-	local bReallocate = false;
 	local start_plot_database = {};
 
-	if pcall(BBS_AssignStartingPlots.Create,args) == true then
-		print("BBS_Assign: No Errors encountered during Protected Call")
-		bReallocate = true
-		else
-		print("BBS_Assign: Errors encountered during Protected Call")
-		bReallocate = false
-	end
-
-	if (bReallocate == true) then
-		print("BBS_Assign:Launching BBS Spawn placement")
-		start_plot_database = BBS_AssignStartingPlots.Create(args)
-		Game:SetProperty("BBS_RESPAWN",true)
-		if (start_plot_database == nil) then
-			print("BBS_Assign:Launching Firaxis Spawn placement")
-			start_plot_database = AssignStartingPlots.Create(args)
-			Game:SetProperty("BBS_RESPAWN",false)	
-		end
-		else
-		print("BBS_Assign: Launching Firaxis Spawn placement")
-		start_plot_database = AssignStartingPlots.Create(args)
-		Game:SetProperty("BBS_RESPAWN",false)
-	end
+	start_plot_database = BBS_AssignStartingPlots.Create(args)
 
 	return start_plot_database
 end

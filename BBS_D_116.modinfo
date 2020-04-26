@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="116">
+	<Properties>
+		<Name>Better Balanced Starts 1.16</Name>
+		<Description></Description>
+		<Teaser></Teaser>
+		<Authors>D. / Jack The Narrator, Wazabaza, codenaugh</Authors>
+		<SpecialThanks>Civfanatics.com, CPL, VonHolio, Braizh, Kilua, Gedemon, Je, EvilVictor, StormingRomans, Ben, Jack The Ripper</SpecialThanks>
+		<CompatibleVersions>1.2,2.0</CompatibleVersions>
+	</Properties>
+  <Dependencies>
+    	<Mod id="4873eb62-8ccc-4574-b784-dda455e74e68" title="Expansion: Gathering Storm" />
+  </Dependencies>
+  <ActionCriteria>
+    <Criteria id="DLC: Vikings Content">
+      <ModInUse>2F6E858A-28EF-46B3-BEAC-B985E52E9BC1</ModInUse>
+    </Criteria>
+</ActionCriteria>
+  <FrontEndActions>
+        <UpdateDatabase id="BBS_SETTINGS">
+            	<File>Configuration/Config.xml</File>
+        </UpdateDatabase>
+        <UpdateText id="BBS_SETTINGS_TEXTS">
+            <File>Configuration/ConfigText.xml</File>
+        </UpdateText>
+  </FrontEndActions>
+
+    <InGameActions>
+    <ImportFiles id="Map_BBS">
+      <File>Data/BBS Maps/Continents.lua</File>
+	<File>Data/BBS Maps/Continents_Islands.lua</File>
+	<File>Data/BBS Maps/Fractal.lua</File>
+	<File>Data/BBS Maps/InlandSea.lua</File>
+	<File>Data/BBS Maps/Island_Plates.lua</File>
+	<File>Data/BBS Maps/Lakes.lua</File>
+	<File>Data/BBS Maps/Pangaea.lua</File>
+	<File>Data/BBS Maps/Primordial.lua</File>
+	<File>Data/BBS Maps/Seven_Seas.lua</File>
+	<File>Data/BBS Maps/Shuffle.lua</File>
+	<File>Data/BBS Maps/Splintered_Fractal.lua</File>
+	<File>Data/BBS Maps/Small_Continents.lua</File>
+	<File>Data/BBS Maps/Terra.lua</File>
+	<File>Data/BBS Maps/Tilted_Axis.lua</File>
+	<File>Data/BBS Maps/Archipelago_XP2.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_MountainsCliffs.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_AssignStartingPlots.lua</File>
+	<File>Data/BBS Maps/Utility/DW_CoastalLowlands.lua</File>
+	<File>Data/BBS Maps/Utility/DW_FeatureGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/DW_MapUtilities.lua</File>
+	<File>Data/BBS Maps/Utility/DW_MountainsCliffs.lua</File>
+	<File>Data/BBS Maps/Utility/DW_RiversLakes.lua</File>
+	<File>Data/BBS Maps/Utility/DW_TerrainGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_TerrainGenerator.lua</File>
+    </ImportFiles>
+
+    	<UpdateDatabase id="BBS_Global_Parameters">
+      		<Properties>
+        		<LoadOrder>1001</LoadOrder>
+      		</Properties>
+      		<File>Configuration/Config.sql</File>
+		<File>Gameplay/GamePlay.xml</File>
+		<File>Gameplay/GamePlayXP2.xml</File>
+    	</UpdateDatabase>
+
+        <UpdateText id="BBS_Gameplay_test">
+            <File>Gameplay/Text.xml</File>
+        </UpdateText>
+
+    	<UpdateDatabase id="BBS_Minor_Bias_Parameters">
+      		<Properties>
+        		<LoadOrder>1001</LoadOrder>
+      		</Properties>
+      		<File>Configuration/Config_minor_bias.sql</File>
+    	</UpdateDatabase>
+
+    	<UpdateDatabase id="BBS_Minor_Bias_Parameters" criteria="DLC: Vikings Content">
+      		<Properties>
+        		<LoadOrder>1001</LoadOrder>
+      		</Properties>
+      		<File>Configuration/Config_minor_bias_DLC_viking.sql</File>
+    	</UpdateDatabase>
+
+    <ImportFiles id="BBS_ExtraMapScriptImport">
+      <Properties>
+        <LoadOrder>1001</LoadOrder>
+      </Properties>
+      	<File>Data/BBS Maps/PerfectWorld6.lua</File>
+	<File>Data/BBS Maps/DWArchipelago.lua</File>
+	<File>Data/BBS Maps/DWContinents.lua</File>
+	<File>Data/BBS Maps/DWFractal.lua</File>
+	<File>Data/BBS Maps/DWPangaea.lua</File>
+	<File>Data/BBS Maps/DWSmallContinents.lua</File>
+	<File>Data/BBS Maps/DWMixedLand.lua</File>
+	<File>Data/BBS Maps/DWMixedIslands.lua</File>
+    </ImportFiles>
+
+        <AddUserInterfaces id="BBS_UI">
+		<Properties>
+			<Context>InGame</Context>
+		</Properties>
+		<File>UI/BBS_UI.xml</File>
+	</AddUserInterfaces>
+
+
+        <AddGameplayScripts id="D">
+            <File>Data/BBS_D.lua</File>
+        </AddGameplayScripts>
+    </InGameActions>
+
+        
+    <Files>
+	<File>UI/BBS_UI.lua</File>
+	<File>UI/BBS_UI.xml</File>
+        <File>Data/BBS_D.lua</File>
+	<File>Data/BBS Maps/Continents.lua</File>
+	<File>Data/BBS Maps/Continents_Islands.lua</File>
+	<File>Data/BBS Maps/Fractal.lua</File>
+	<File>Data/BBS Maps/InlandSea.lua</File>
+	<File>Data/BBS Maps/Island_Plates.lua</File>
+	<File>Data/BBS Maps/Lakes.lua</File>
+	<File>Data/BBS Maps/Pangaea.lua</File>
+	<File>Data/BBS Maps/Primordial.lua</File>
+	<File>Data/BBS Maps/Seven_Seas.lua</File>
+	<File>Data/BBS Maps/Shuffle.lua</File>
+	<File>Data/BBS Maps/Splintered_Fractal.lua</File>
+	<File>Data/BBS Maps/Small_Continents.lua</File>
+	<File>Data/BBS Maps/Terra.lua</File>
+	<File>Data/BBS Maps/Tilted_Axis.lua</File>
+	<File>Data/BBS Maps/Archipelago_XP2.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_AssignStartingPlots.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_MountainsCliffs.lua</File>
+	<File>Data/BBS Maps/Utility/DW_CoastalLowlands.lua</File>
+	<File>Data/BBS Maps/Utility/DW_FeatureGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/DW_MapUtilities.lua</File>
+	<File>Data/BBS Maps/Utility/DW_MountainsCliffs.lua</File>
+	<File>Data/BBS Maps/Utility/DW_RiversLakes.lua</File>
+	<File>Data/BBS Maps/Utility/DW_TerrainGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_TerrainGenerator.lua</File>
+    	<File>Data/BBS Maps/PerfectWorld6.lua</File>
+	<File>Data/BBS Maps/DWArchipelago.lua</File>
+	<File>Data/BBS Maps/DWContinents.lua</File>
+	<File>Data/BBS Maps/DWFractal.lua</File>
+	<File>Data/BBS Maps/DWPangaea.lua</File>
+	<File>Data/BBS Maps/DWSmallContinents.lua</File>
+	<File>Data/BBS Maps/DWMixedLand.lua</File>
+	<File>Data/BBS Maps/DWMixedIslands.lua</File>
+        <File>Configuration/Config.xml</File>
+        <File>Configuration/ConfigText.xml</File>
+	<File>Configuration/Config.sql</File>
+	<File>Configuration/Config_minor_bias.sql</File>
+	<File>Configuration/Config_minor_bias_DLC_viking.sql</File>
+	<File>Gameplay/Text.xml</File>
+	<File>Gameplay/GamePlay.xml</File>
+	<File>Gameplay/GamePlayXP2.xml</File>
+    </Files>
+</Mod>

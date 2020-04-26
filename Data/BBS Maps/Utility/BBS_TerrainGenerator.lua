@@ -37,13 +37,13 @@ function BBS_GenerateTerrainTypes(plotTypes, iW, iH, iFlags, bNoCoastalMountains
 	local fDesertShiftBottom = fDesertTopLatitudeArg or 0.0;
 	
 	-- Set terrain bands.
-	local iDesertPercent = 30;
+	local iDesertPercent = 18; -- Was 30% then 26% while making desert more centered put 18% after Mali's rework
 	local iPlainsPercent = 50; 
-	local fSnowLatitude  = 0.86 + coldShift;
-	local fTundraLatitude = 0.65 + coldShift;
+	local fSnowLatitude  = 0.84 + coldShift; -- was 0.86 put 0.84
+	local fTundraLatitude = 0.67 + coldShift; -- was 0.65 put 0.67
 	local fGrassLatitude = 0.1; 
-	local fDesertBottomLatitude = 0.4;
-	local fDesertTopLatitude = 0.54;
+	local fDesertBottomLatitude = 0.4; 
+	local fDesertTopLatitude = 0.6; -- was 0.56 should be 0.6 to make the map symmetrical
 
 	-- Adjust user's Temperature selection.
 	if temperature > 2.5 then -- World Temperature is Cool.
