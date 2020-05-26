@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="116">
+<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="131">
 	<Properties>
-		<Name>Better Balanced Starts 1.16</Name>
+		<Name>Better Balanced Starts 1.31</Name>
 		<Description></Description>
 		<Teaser></Teaser>
 		<Authors>D. / Jack The Narrator, Wazabaza, codenaugh</Authors>
-		<SpecialThanks>Civfanatics.com, CPL, VonHolio, Braizh, Kilua, Gedemon, Je, EvilVictor, StormingRomans, Ben, Jack The Ripper</SpecialThanks>
+		<SpecialThanks>Civfanatics.com, CPL, CivFR, Deliverator, VonHolio, Braizh, Kilua, Gedemon, Je, EvilVictor, StormingRomans, Ben</SpecialThanks>
 		<CompatibleVersions>1.2,2.0</CompatibleVersions>
 	</Properties>
   <Dependencies>
@@ -51,6 +51,8 @@
 	<File>Data/BBS Maps/Utility/DW_RiversLakes.lua</File>
 	<File>Data/BBS Maps/Utility/DW_TerrainGenerator.lua</File>
 	<File>Data/BBS Maps/Utility/BBS_TerrainGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_ResourceGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_Balance.lua</File>
     </ImportFiles>
 
     	<UpdateDatabase id="BBS_Global_Parameters">
@@ -136,6 +138,8 @@
 	<File>Data/BBS Maps/Utility/DW_RiversLakes.lua</File>
 	<File>Data/BBS Maps/Utility/DW_TerrainGenerator.lua</File>
 	<File>Data/BBS Maps/Utility/BBS_TerrainGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_ResourceGenerator.lua</File>
+	<File>Data/BBS Maps/Utility/BBS_Balance.lua</File>
     	<File>Data/BBS Maps/PerfectWorld6.lua</File>
 	<File>Data/BBS Maps/DWArchipelago.lua</File>
 	<File>Data/BBS Maps/DWContinents.lua</File>

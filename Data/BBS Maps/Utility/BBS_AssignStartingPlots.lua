@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---	FILE:	BBS_AssignStartingPlot.lua    -- 1.16
+--	FILE:	BBS_AssignStartingPlot.lua    -- 1.2
 --	AUTHOR:  D. / Jack The Narrator, Kilua
 --	PURPOSE: Custom Spawn Placement Script
 ------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ include ( "AssignStartingPlots" );
 local bError_major = false;
 local bError_minor = false;
 local bError_proximity = false;
+local bRepeatPlacement = false;
 local b_debug_region = false
 local b_north_biased = false
 local Teamers_Config = 0
@@ -48,7 +49,7 @@ function BBS_AssignStartingPlots.Create(args)
 	--	Major_Distance_Target = 20
 	--end	
 	if MapConfiguration.GetValue("MAP_SCRIPT") == "Terra.lua" then
-		Major_Distance_Target = 16
+		Major_Distance_Target = 17
 	end
 	if Teamers_Config == 0 then
 		Major_Distance_Target = Major_Distance_Target - 3 
@@ -98,7 +99,7 @@ function BBS_AssignStartingPlots.Create(args)
 	end	
 	
 	
-	for i = 1,10 do
+	for i = 1,12 do
 		instance = {}
 		bError_major = false;
 		bError_proximity = false;
@@ -124,6 +125,7 @@ function BBS_AssignStartingPlots.Create(args)
         __GetResourceIndex                  = BBS_AssignStartingPlots.__GetResourceIndex,
         __NaturalWonderBuffer				= BBS_AssignStartingPlots.__NaturalWonderBuffer,
         __LuxuryBuffer				        = BBS_AssignStartingPlots.__LuxuryBuffer,
+		__LuxuryCount						= BBS_AssignStartingPlots.__LuxuryCount,
         __TryToRemoveBonusResource			= BBS_AssignStartingPlots.__TryToRemoveBonusResource,
         __MajorCivBuffer					= BBS_AssignStartingPlots.__MajorCivBuffer,
         __MinorMajorCivBuffer				= BBS_AssignStartingPlots.__MinorMajorCivBuffer,
@@ -143,6 +145,7 @@ function BBS_AssignStartingPlots.Create(args)
         __RemoveBonus						= BBS_AssignStartingPlots.__RemoveBonus,
         __TableSize						    = BBS_AssignStartingPlots.__TableSize,
         __GetValidAdjacent					= BBS_AssignStartingPlots.__GetValidAdjacent,
+		__GetShuffledCiv					= BBS_AssignStartingPlots.__GetShuffledCiv,
 		__CountAdjacentContinentsInRange	= BBS_AssignStartingPlots.__CountAdjacentContinentsInRange,
 
         iNumMajorCivs = 0,
@@ -166,6 +169,7 @@ function BBS_AssignStartingPlots.Create(args)
         majorStartPlots = {},
 		majorStartPlotsTeam = {},
         minorStartPlots = {},
+		minorStartPlotsID = {},
         majorList = {},
         minorList = {},
         playerStarts = {},
@@ -182,6 +186,7 @@ function BBS_AssignStartingPlots.Create(args)
 		iDistance = 0,
 		iDistance_minor = 0,
 		iDistance_minor_minor = 5,
+		iMinorAttempts = 0,
         -- Team info variables (not used in the core process, but necessary to many Multiplayer map scripts)
     }
 
@@ -196,6 +201,10 @@ function BBS_AssignStartingPlots.Create(args)
 			return instance
 			else
 			Major_Distance_Target = Major_Distance_Target - 1
+			if Major_Distance_Target < 9 then
+				Major_Distance_Target = 9
+				bRepeatPlacement = true
+			end
 		end
 	end
 	
@@ -425,7 +434,10 @@ function BBS_AssignStartingPlots:__InitStartingData()
 		else
 		bError_minor = false
 	end
-
+	local count = 0
+	if Game:GetProperty("BBS_MINOR_FAILING_TOTAL") ~= nil then
+		count = Game:GetProperty("BBS_MINOR_FAILING_TOTAL")
+	end
 	if (bError_major ~= true) then
 		for i = 1, PlayerManager.GetAliveMajorsCount() do
 			if (PlayerConfigurations[tempMajorList[i]]:GetLeaderTypeName() ~= "LEADER_SPECTATOR" and PlayerConfigurations[tempMajorList[i]]:GetHandicapTypeID() ~= 2021024770 and PlayerConfigurations[tempMajorList[i]]:GetLeaderTypeName() ~= "LEADER_KUPE") then
@@ -436,7 +448,6 @@ function BBS_AssignStartingPlots:__InitStartingData()
 						if (pStartPlot_j ~= nil) then
 							local distance = Map.GetPlotDistance(pStartPlot_i:GetIndex(),pStartPlot_j:GetIndex())
 							self:__Debug("I:", tempMajorList[i],"J:", tempMajorList[j],"Distance:",distance)
-							print("I:", tempMajorList[i],"J:", tempMajorList[j],"Distance:",distance)
 							if (distance < 9 ) then
 								bError_proximity = true;
 								print("Proximity Error:",distance)
@@ -444,10 +455,28 @@ function BBS_AssignStartingPlots:__InitStartingData()
 						end
 					end
 				end
+				for k = 1, PlayerManager.GetAliveMinorsCount() do
+					if (Players[self.minorList[k]] ~= nil ) then
+						local pStartPlot_k = Players[self.minorList[k]]:GetStartingPlot()
+						if (pStartPlot_k ~= nil) then
+							local distance = Map.GetPlotDistance(pStartPlot_i:GetIndex(),pStartPlot_k:GetIndex())
+							self:__Debug("I:", tempMajorList[i],"K:", self.minorList[k],"Distance:",distance)
+							if (distance < 6 or pStartPlot_i:GetIndex() == pStartPlot_k:GetIndex()) then
+								self:__Debug("Error Minor Player is missing:", self.minorList[k]);
+								count = count + 1
+								Game:SetProperty("BBS_MINOR_FAILING_ID_"..count,self.minorList[k])
+								startPlot = Map.GetPlotByIndex(PlayerManager.GetAliveMajorsCount()+PlayerManager.GetAliveMinorsCount()+count);
+								local minPlayer = Players[self.minorList[k]]
+								minPlayer:SetStartingPlot(startPlot);
+								self:__Debug("Minor Temp Start X: ", startPlot:GetX(), "Y: ", startPlot:GetY());
+							end
+						end
+					end					
+				end
 			end
 		end
 	end
-
+	Game:SetProperty("BBS_MINOR_FAILING_TOTAL",count)
 
     print("BBS_AssignStartingPlots: Completed", os.date("%c"));
 end
@@ -472,6 +501,7 @@ end
 ------------------------------------------------------------------------------
 function BBS_AssignStartingPlots:__SetStartBias(startPlots, iNumberCiv, playersList, major)
     local civs = {};
+	local tierOrder = {};
 	self.regionTracker = {};
 	local count = 0;
 	for i, region in ipairs(startPlots) do
@@ -493,15 +523,24 @@ function BBS_AssignStartingPlots:__SetStartBias(startPlots, iNumberCiv, playersL
         table.insert(civs, civ);
     end
     for i = 1, self.tierMax + 1 do
-        local tierOrder = {};
+        tierOrder = {};
         for j, civ in ipairs(civs) do
             if (civ.Tier == i) then
                 table.insert(tierOrder, civ);
             end
         end
         local shuffledCiv = GetShuffledCopyOfTable(tierOrder);
+		if bRepeatPlacement == true then
+			if self.iHard_Major ~= nil then
+				print("Reshuffling Civ Order")
+				shuffledCiv = self:__GetShuffledCiv(tierOrder,self.iHard_Major);
+				else
+				print("Error: Hard Major Limit ")
+			end
+		end
         for k, civ in ipairs(shuffledCiv) do
             self:__Debug("SetStartBias for", civ.Type);
+			print("SetStartBias for", civ.Type,playersList[civ.Index]);
             self:__BiasRoutine(civ.Type, startPlots, civ.Index, playersList, major, false);
         end
     end
@@ -519,7 +558,8 @@ function BBS_AssignStartingPlots:__BiasRoutine(civilizationType, startPlots, ind
        			if (region ~= nil and self:__TableSize(region) > 0) then
             		local tempBiases = self:__RateBiasPlots(biases, region, major, i,civilizationType,playersList[index]);
 
-            		if ((ratedBiases == nil or ratedBiases[1].Score < tempBiases[1].Score) and (tempBiases[1].Score > 0 or major == false) ) then
+            		if ( 	(ratedBiases == nil or ratedBiases[1].Score < tempBiases[1].Score) and 
+							(tempBiases[1].Score > 0 or major == false or (bRepeatPlacement == true and tempBiases[1].Score > -500) ) ) then
                 		ratedBiases = tempBiases;
                 		regionIndex = i;
             		end
@@ -539,52 +579,65 @@ function BBS_AssignStartingPlots:__BiasRoutine(civilizationType, startPlots, ind
 
     		if (settled == false) then
 
-        		self:__Debug("Failed to settled in assigned region, reduce the distance by one and retry.");
+        		print("Failed to settled in assigned region, reduce the distance by one and retry.",playersList[index],civilizationType);
 
-			if (major == true) then
-				if (self.iDistance == 0) then
-					self.iDistance = -1;
-					self:__Debug("BBS_AssignStartingPlots: Reducing Major Distance by 1");
-				end
-				else
+				if (major == true) then
+					if (self.iDistance_minor == 0) then
+						self.iDistance_minor = -1;
+						self:__Debug("BBS_AssignStartingPlots: Reducing Minor Distance by 1");
+					end
+				
+					else
 
-				if (self.iDistance_minor == 0) then
-					self.iDistance_minor = -1;
-					self:__Debug("BBS_AssignStartingPlots: Reducing Minor Distance by 1");
+					if (self.iDistance_minor == 0) then
+						self.iDistance_minor = -1;
+						self:__Debug("BBS_AssignStartingPlots: Reducing Minor Distance by 1");
+					end
+					self:__Debug("BBS_AssignStartingPlots: Minor-Minor Distance Buffer is ",self.iDistance_minor_minor);
+					if (self.iDistance_minor_minor > -1) then
+						self.iDistance_minor_minor = self.iDistance_minor_minor -1;
+						self:__Debug("BBS_AssignStartingPlots: Reducing Minor-Minor Distance Buffer to ", self.iDistance_minor_minor);
+					end
 				end
-				self:__Debug("BBS_AssignStartingPlots: Minor-Minor Distance Buffer is ",self.iDistance_minor_minor);
-				if (self.iDistance_minor_minor > -1) then
-					self.iDistance_minor_minor = self.iDistance_minor_minor -1;
-					self:__Debug("BBS_AssignStartingPlots: Reducing Minor-Minor Distance Buffer to ", self.iDistance_minor_minor);
-				end
-			end
 
-			settled = self:__SettlePlot(ratedBiases, index, Players[playersList[index]], major, regionIndex,civilizationType);
+				settled = self:__SettlePlot(ratedBiases, index, Players[playersList[index]], major, regionIndex,civilizationType);
 
     			if (settled == false) then
-        			self:__Debug("Failed to settled in assigned region, use fallbacks.");
-				if (self:__TableSize(self.fallbackPlots) > 0) then
+        			print("Failed to settled in assigned region, use fallbacks.",Players[playersList[index]],civilizationType);
+					if (self:__TableSize(self.fallbackPlots) > 0) then
         				ratedBiases = self:__RateBiasPlots(biases, self.fallbackPlots, major);
-        				self:__SettlePlot(ratedBiases, index, Players[playersList[index]], major, -1,civilizationType);
-					else
-					self:__Debug("We are fucked!");
-					return
-				end
+        				settled = self:__SettlePlot(ratedBiases, index, Players[playersList[index]], major, -1,civilizationType);
+						if (settled == false) then
+							print("Failed to place",playersList[index],civilizationType)
+						end
+						else
+						print("Failed to place",Players[playersList[index]],civilizationType)
+						return
+					end
 
-				else
+					else -- Placement successful
+
+					self.regionTracker[regionIndex] = -1;
+					self:__Debug("Bias Routine: Remove Region index: Successful Placement post distance reduction", regionIndex);
+				end		
+			
+				else -- Placement successful
 
 				self.regionTracker[regionIndex] = -1;
-				self:__Debug("Bias Routine: Remove Region index: Successful Placement post distance reduction", regionIndex);
-			end
-
-			else
-
-			self.regionTracker[regionIndex] = -1;
-			self:__Debug("Bias Routine: Remove Region index: Successful Placement", regionIndex);
+				self:__Debug("Bias Routine: Remove Region index: Successful Placement", regionIndex);
 
     		end
+			
+			elseif (major == true) and (self:__TableSize(self.fallbackPlots) > 0) then
+			print("Attempt to place using fallback",playersList[index],civilizationType)	
+	        ratedBiases = self:__RateBiasPlots(biases, self.fallbackPlots, major);
+        	settled = self:__SettlePlot(ratedBiases, index, Players[playersList[index]], major, -1,civilizationType);
+				
+			if (settled == false) then
+				print("Failed to place",playersList[index],civilizationType)
+			end	
 
-	end
+		end
 end
 ------------------------------------------------------------------------------
 function BBS_AssignStartingPlots:__FindBias(civilizationType)
@@ -636,10 +689,10 @@ end
 function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, region_index, civilizationType,iPlayer)
     local ratedPlots = {};
 	local region_bonus = 0
+	 local gridWidth, gridHeight = Map.GetGridSize();
 
 
-
-	if civilizationType == "CIVILIZATION_SPAIN" or civilizationType == "CIVILIZATION_AUSTRALIA" or civilizationType == "CIVILIZATION_INCA" or civilizationType == "CIVILIZATION_MAPUCHE" or civilizationType == "CIVILIZATION_EGYPT" or civilizationType == "CIVILIZATION_CANADA" or civilizationType == "CIVILIZATION_RUSSIA" then
+	if civilizationType == "CIVILIZATION_SPAIN" or civilizationType == "CIVILIZATION_AUSTRALIA" or civilizationType == "CIVILIZATION_BRAZIL" or civilizationType == "CIVILIZATION_INCA" or civilizationType == "CIVILIZATION_MAPUCHE" or civilizationType == "CIVILIZATION_EGYPT" or civilizationType == "CIVILIZATION_CANADA" or civilizationType == "CIVILIZATION_RUSSIA" then
 		local count = 0
 		for i, plot in ipairs(startPlots) do
 			if civilizationType == "CIVILIZATION_SPAIN" then
@@ -653,6 +706,14 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 						region_bonus = 50
 						break
 					end
+				end
+			end
+			if civilizationType == "CIVILIZATION_BRAZIL"  then
+				if  plot:GetFeatureType() == "FEATURE_JUNGLE" then
+					count = count + 1
+				end
+				if  plot:GetFeatureType() == "FEATURE_FOREST" then
+					count = count - 1
 				end
 			end
 			if civilizationType == "CIVILIZATION_AUSTRALIA" or civilizationType == "CIVILIZATION_MAPUCHE" then
@@ -683,6 +744,9 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 		if civilizationType == "CIVILIZATION_EGYPT" and count > 20 then 
 			region_bonus = 150
 		end
+		if civilizationType == "CIVILIZATION_BRAZIL" and count > 0 then 
+			region_bonus = 150
+		end
 		if civilizationType == "CIVILIZATION_INCA" and count > 15 then 
 			if  count > 15 then
 				region_bonus = 100
@@ -692,9 +756,9 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 		end
 		if civilizationType == "CIVILIZATION_RUSSIA" or civilizationType == "CIVILIZATION_CANADA" then
 			if  count > 15 then
-				region_bonus = 100
+				region_bonus = 250
 				else
-				region_bonus = -300				
+				region_bonus = -400				
 			end
 		end
 	end
@@ -704,6 +768,7 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
         local foundBiasDesert = false;
         local foundBiasToundra = false;
 		local foundBiasFloodPlains = false;
+		local foundBiasCoast = false;
         ratedPlot.Plot = plot;
 		if b_debug_region == true and major == true then
 			if region_index == 0  then -- Region 0: Snow
@@ -773,6 +838,7 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
                 --self:__Debug("Rate Plot:", plot:GetX(), ":", plot:GetY(), "For Bias :", bias.Type, "value :", bias.Value);
                 if (bias.Type == "TERRAINS") then
 					if bias.Value == g_TERRAIN_TYPE_COAST then
+						foundBiasCoast = true;
 						if self:__CountAdjacentTerrainsInRange(ratedPlot.Plot, bias.Value, major) > 0 then
 							ratedPlot.Score = ratedPlot.Score + 150
 						end
@@ -791,13 +857,41 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
                         foundBiasFloodPlains = true;
                     end
                 elseif (bias.Type == "RIVERS" and ratedPlot.Plot:IsRiver()) then
-                    ratedPlot.Score = ratedPlot.Score + 25 + self:__ScoreAdjacent(1, bias.Tier);
+                    ratedPlot.Score = ratedPlot.Score + 100 + self:__ScoreAdjacent(1, bias.Tier);
                 elseif (bias.Type == "RESOURCES") then
                     ratedPlot.Score = ratedPlot.Score + 25 + self:__ScoreAdjacent(self:__CountAdjacentResourcesInRange(ratedPlot.Plot, bias.Value, major), bias.Tier);
                 end
             end
         end
         if (major) then
+			if self.uiStartConfig ~= 3 then
+				-- luxury fix
+				local luxcount =  self:__LuxuryCount(ratedPlot.Plot)
+				if luxcount == 1 then
+					ratedPlot.Score = ratedPlot.Score + 25
+					elseif luxcount == 2 and civilizationType ~= "CIVILIZATION_MAYA" then
+					ratedPlot.Score = ratedPlot.Score - 100
+					elseif luxcount == 2 and civilizationType == "CIVILIZATION_MAYA" then
+					ratedPlot.Score = ratedPlot.Score + 100
+					elseif luxcount > 2 and civilizationType ~= "CIVILIZATION_MAYA" then
+					ratedPlot.Score = ratedPlot.Score - 100 * luxcount					
+				end			
+			end
+			if civilizationType ~= "CIVILIZATION_INCA" then
+			    local Mountain_plains = self:__CountAdjacentTerrainsInRange(ratedPlot.Plot, 5, false);
+                local Mountain_grass = self:__CountAdjacentTerrainsInRange(ratedPlot.Plot, 2, false);
+				if Mountain_plains ~= nil and Mountain_grass ~= nil then
+					if (Mountain_plains + Mountain_grass) > 0 and (Mountain_plains + Mountain_grass) < 5 then
+						ratedPlot.Score = ratedPlot.Score + 50
+					end
+				end	
+			end
+			if ratedPlot.Plot:IsRiver() then
+				ratedPlot.Score = ratedPlot.Score + 25
+				if civilizationType == "CIVILIZATION_MALI" then
+					ratedPlot.Score = ratedPlot.Score + 300
+				end
+			end
             if (not foundBiasDesert) then
                 local tempDesert = self:__CountAdjacentTerrainsInRange(ratedPlot.Plot, g_TERRAIN_TYPE_DESERT, false);
                 local tempDesertHill = self:__CountAdjacentTerrainsInRange(ratedPlot.Plot, g_TERRAIN_TYPE_DESERT_HILLS, false);
@@ -845,10 +939,34 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 					ratedPlot.Score = ratedPlot.Score + continent * 250
 				end
 			end
+			
+			-- Placement
+			if MapConfiguration.GetValue("MAP_SCRIPT") ~= "Tilted_Axis.lua" and civilizationType ~= "CIVILIZATION_RUSSIA" and civilizationType ~= "CIVILIZATION_CANADA" then
+			    local max = 0;
+				local min = 0;
+				if Map.GetMapSize() == 4 then
+					max = 12 -- math.ceil(0.5*gridHeight * self.uiStartMaxY / 100);
+					min = 12 -- math.ceil(0.5*gridHeight * self.uiStartMinY / 100);
+					elseif Map.GetMapSize() == 5 then
+					max = 14
+					min = 14
+					elseif Map.GetMapSize() == 3 then
+					max = 10
+					min = 10	
+					else
+					max = 8
+					min = 8
+				end	
+
+
+				if(plot:GetY() <= min or plot:GetY() > gridHeight - max) then
+					ratedPlot.Score = ratedPlot.Score - 500
+				end	
+			end
+			
 			if self.iTeamPlacement == 1 then
 				-- East vs. West
 				if Players[iPlayer] ~= nil then
-					local gridWidth, gridHeight = Map.GetGridSize();
 					if Teamers_Ref_team == nil then
 						Teamers_Ref_team = Players[iPlayer]:GetTeam()
 					end
@@ -886,7 +1004,6 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 				-- North vs. South
 				elseif self.iTeamPlacement == 2 then
 				if Players[iPlayer] ~= nil then
-					local gridWidth, gridHeight = Map.GetGridSize();
 					if Teamers_Ref_team == nil then
 						Teamers_Ref_team = Players[iPlayer]:GetTeam()
 					end
@@ -925,14 +1042,21 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 		end
 
 		if (plot:GetFeatureType() == g_FEATURE_OASIS) then
-			ratedPlot.Score = ratedPlot.Score -100;
+			ratedPlot.Score = ratedPlot.Score -250;
 		end
         ratedPlot.Score = ratedPlot.Score + self:__CountAdjacentYieldsInRange(plot, major);
 		if (plot:IsCoastalLand() == true) then
-			ratedPlot.Score = ratedPlot.Score + 25;
+			if civilizationType ~= "CIVILIZATION_MAYA" then
+				ratedPlot.Score = ratedPlot.Score + 25;
+				else
+				ratedPlot.Score = ratedPlot.Score - 50;
+			end
 		end
-		if (plot:IsFreshWater() == true) then
+		if (plot:IsFreshWater() == true and civilizationType ~= "CIVILIZATION_MAYA") then
 			ratedPlot.Score = ratedPlot.Score + 75;
+			if foundBiasCoast == false then
+				ratedPlot.Score = ratedPlot.Score + 75;
+			end
 		end
 		if Players[iPlayer] ~= nil then
 			if self:__MajorCivBuffer(plot,Players[iPlayer]:GetTeam()) == false then
@@ -966,6 +1090,7 @@ function BBS_AssignStartingPlots:__SettlePlot(ratedBiases, index, player, major,
                 self.playerStarts[index] = {};
                 if (self:__MajorCivBuffer(ratedBias.Plot,player:GetTeam())) then
                     self:__Debug("Settled plot :", ratedBias.Plot:GetX(), ":", ratedBias.Plot:GetY(), "Score :", ratedBias.Score, "Player:",player:GetID(),"Region:",regionIndex);
+					print("Settled Score :", ratedBias.Score, "Player:",player:GetID(),"Region:",regionIndex)
                     settled = true;
                     table.insert(self.playerStarts[index], ratedBias.Plot);
                     table.insert(self.majorStartPlots, ratedBias.Plot);
@@ -983,11 +1108,14 @@ function BBS_AssignStartingPlots:__SettlePlot(ratedBiases, index, player, major,
                 end
             else
                 self.playerStarts[index + self.iNumMajorCivs] = {};
-                if (self:__MinorMajorCivBuffer(ratedBias.Plot) and self:__MinorMinorCivBuffer(ratedBias.Plot)) then
+                if ( self:__MinorMajorCivBuffer(ratedBias.Plot) and self:__MinorMinorCivBuffer(ratedBias.Plot,player:GetID()) ) then
                     self:__Debug("Settled plot :", ratedBias.Plot:GetX(), ":", ratedBias.Plot:GetY(), "Score :", ratedBias.Score, "Player:",player:GetID(),"Region:",regionIndex);
                     settled = true;
                     table.insert(self.playerStarts[index + self.iNumMajorCivs], ratedBias.Plot);
                     table.insert(self.minorStartPlots, ratedBias.Plot)
+					local tmp = {}
+					tmp = {ID = player:GetID(), Plot = ratedBias.Plot}
+					table.insert(self.minorStartPlotsID, tmp)
                     player:SetStartingPlot(ratedBias.Plot);
 
                 else
@@ -1264,7 +1392,7 @@ function BBS_AssignStartingPlots:__LuxuryBuffer(plot, major)
                 local otherPlot = Map.GetPlotXYWithRangeCheck(plotX, plotY, dx, dy, 2);
                 if(otherPlot) then
                     if(otherPlot:GetResourceCount() > 0) then
-                        for _, row in ipairs(self.rLuxury) do
+                        for _, row in ipairs(self.rLuxury) do 
                             if(row.Index == otherPlot:GetResourceType()) then
                                 return true;
                             end
@@ -1277,6 +1405,30 @@ function BBS_AssignStartingPlots:__LuxuryBuffer(plot, major)
     end
     return true;
 end
+------------------------------------------------------------------------------
+function BBS_AssignStartingPlots:__LuxuryCount(plot)
+    -- Checks to see if there are luxuries in the given distance
+		local count = 0
+        local plotX = plot:GetX();
+        local plotY = plot:GetY();
+        for dx = -2, 2 do
+            for dy = -2, 2 do
+                local otherPlot = Map.GetPlotXYWithRangeCheck(plotX, plotY, dx, dy, 2);
+                if(otherPlot) then
+                    if(otherPlot:GetResourceCount() > 0) then
+                        for _, row in ipairs(self.rLuxury) do 
+                            if(row.Index == otherPlot:GetResourceType()) then
+                                count = count + 1
+                            end
+                        end
+                    end
+                end
+            end
+        end
+		return count
+
+end
+
 ------------------------------------------------------------------------------
 function BBS_AssignStartingPlots:__TryToRemoveBonusResource(plot)
     --Removes Bonus Resources underneath starting players
@@ -1342,19 +1494,33 @@ function BBS_AssignStartingPlots:__MinorMajorCivBuffer(plot)
     return true;
 end
 ------------------------------------------------------------------------------
-function BBS_AssignStartingPlots:__MinorMinorCivBuffer(plot)
+function BBS_AssignStartingPlots:__MinorMinorCivBuffer(plot,playerID)
     -- Checks to see if there are minors in the given distance for this minor civ
     local iMaxStart = GlobalParameters.START_DISTANCE_MINOR_CIVILIZATION_START or 7;
     --iMaxStart = iMaxStart - GlobalParameters.START_DISTANCE_RANGE_MINOR or 2;
 	--local iMaxStart = 7;
+	local leader	:string = PlayerConfigurations[playerID]:GetLeaderTypeName();
+	local leaderInfo:table	= GameInfo.Leaders[leader];
+
     local iSourceIndex = plot:GetIndex();
-    for i, minorPlot in ipairs(self.minorStartPlots) do
-		if minorPlot == plot then
+    for i, minorPlotandID in ipairs(self.minorStartPlotsID) do
+		if minorPlotandID.Plot == plot then
 			return false;
 		end
-        if(Map.GetPlotDistance(iSourceIndex, minorPlot:GetIndex()) <= iMaxStart or Map.GetPlotDistance(iSourceIndex, minorPlot:GetIndex()) < 7) then
+        if(Map.GetPlotDistance(iSourceIndex, minorPlotandID.Plot:GetIndex()) <= iMaxStart or Map.GetPlotDistance(iSourceIndex, minorPlotandID.Plot:GetIndex()) < 7) then
             return false;
         end
+		if minorPlotandID.ID ~= nil and PlayerConfigurations[minorPlotandID.ID] ~= nil then
+			local min_leader	:string = PlayerConfigurations[minorPlotandID.ID]:GetLeaderTypeName();
+			local min_leaderInfo:table	= GameInfo.Leaders[min_leader];
+			if leaderInfo.InheritFrom == min_leaderInfo.InheritFrom and Map.GetPlotDistance(iSourceIndex, minorPlotandID.Plot:GetIndex()) < 21 then
+				if self.iMinorAttempts < 20 then
+					print("Too close to same CS type")
+					self.iMinorAttempts = self.iMinorAttempts + 1
+					return false;
+				end
+			end
+		end
     end
     return true;
 end
@@ -1719,6 +1885,29 @@ function BBS_AssignStartingPlots:__TableSize(table)
     return count;
 end
 ------------------------------------------------------------------------------
+function BBS_AssignStartingPlots:__GetShuffledCiv(incoming_table,param)
+	-- Designed to operate on tables with no gaps. Does not affect original table.
+	local len = table.maxn(incoming_table);
+	local copy = {};
+	local shuffledVersion = {};
+	-- Make copy of table.
+	for loop = 1, len do
+		copy[loop] = incoming_table[loop];
+	end
+	-- One at a time, choose a random index from Copy to insert in to final table, then remove it from the copy.
+	local left_to_do = table.maxn(copy);
+	for loop = 1, len do
+		local random_index = 0
+		for n = 1, param do
+			random_index = 1 + TerrainBuilder.GetRandomNumber(left_to_do, "Shuffling table entry - Lua");
+		end
+		table.insert(shuffledVersion, copy[random_index]);
+		table.remove(copy, random_index);
+		left_to_do = left_to_do - 1;
+	end
+	return shuffledVersion
+end
+------------------------------------------------------------------------------
 function BBS_AssignStartingPlots:__GetValidAdjacent(plot, major)
     local impassable = 0;
     local water = 0;
@@ -1741,17 +1930,17 @@ function BBS_AssignStartingPlots:__GetValidAdjacent(plot, major)
     	local min = 0;
     	if(major == true) then
 			if Map.GetMapSize() == 4 then
-				max = 6 -- math.ceil(0.5*gridHeight * self.uiStartMaxY / 100);
-				min = 6 -- math.ceil(0.5*gridHeight * self.uiStartMinY / 100);
+				max = 7 -- math.ceil(0.5*gridHeight * self.uiStartMaxY / 100);
+				min = 7 -- math.ceil(0.5*gridHeight * self.uiStartMinY / 100);
 				elseif Map.GetMapSize() == 5 then
-				max = 7
-				min = 7
+				max = 8
+				min = 8
 				elseif Map.GetMapSize() == 3 then
-				max = 5
-				min = 5	
+				max = 6
+				min = 6	
 				else
-				max = 4
-				min = 4
+				max = 5
+				min = 5
 			end	
     	end
 

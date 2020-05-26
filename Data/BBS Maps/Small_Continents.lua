@@ -14,12 +14,10 @@ include "FeatureGenerator"
 include "BBS_TerrainGenerator"
 include "TerrainGenerator"
 include "NaturalWonderGenerator"
-include "ResourceGenerator"
+include "BBS_ResourceGenerator"
 include "CoastalLowlands"
 include "AssignStartingPlots"
-include "BBS_AssignStartingPlots"
-
-local g_iW, g_iH;
+include "BBS_AssignStartingPlots";include "BBS_Balance";local g_iW, g_iH;
 local g_iFlags = {};
 local g_continentsFrac = nil;
 local featureGen = nil;
@@ -86,8 +84,10 @@ function GenerateMap()
 	local iContinentBoundaryPlots = GetContinentBoundaryPlotCount(g_iW, g_iH);
 	local biggest_area = Areas.FindBiggestArea(false);
 	print("After Adding Hills: ", biggest_area:GetPlotCount());
+		if (MapConfiguration.GetValue("BBSRidge") ~= 1) then
+		print("Adding Ridges");
 	AddTerrainFromContinents(plotTypes, terrainTypes, world_age, g_iW, g_iH, iContinentBoundaryPlots);
-
+	end
 	AreaBuilder.Recalculate();
 	TerrainBuilder.AnalyzeChokepoints();
 
@@ -117,8 +117,10 @@ function GenerateMap()
 		resources = resourcesConfig,
 		START_CONFIG = startConfig,
 	};
-	local resGen = ResourceGenerator.Create(args);
-
+	local resGen = BBS_ResourceGenerator.Create(args);
+	if (MapConfiguration.GetValue("BBSRidge") == 1) then
+		AddVolcanos(plotTypes,world_age,g_iW, g_iH)
+	end
 	print("Creating start plot database.");
 	
 	-- START_MIN_Y and START_MAX_Y is the percent of the map ignored for major civs' starting positions.
@@ -133,7 +135,7 @@ function GenerateMap()
 	};
 	local start_plot_database = BBS_Assign(args)
 
-	local GoodyGen = AddGoodies(g_iW, g_iH);
+		local GoodyGen = AddGoodies(g_iW, g_iH);	local Balance = BBS_Script();	AreaBuilder.Recalculate();	TerrainBuilder.AnalyzeChokepoints();
 end
 
 -------------------------------------------------------------------------------
@@ -257,6 +259,9 @@ function GeneratePlotTypes(world_age)
 	args.extra_mountains = 10;
 	args.adjust_plates = 3;
 	mountainRatio = 8 + world_age * 3;
+		if (MapConfiguration.GetValue("BBSRidge") == 1) then
+		mountainRatio = 10 + world_age * 3;
+	end
 	plotTypes = ApplyTectonics(args, plotTypes);
 	plotTypes = AddLonelyMountains(plotTypes, mountainRatio);
 

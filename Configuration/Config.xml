@@ -16,6 +16,7 @@
 		<!--<Row ParameterId="BalancingTypeThree" Name="I18N_BALANCING_TYPE_3_NAME" Description="I18N_BALANCING_TYPE_3_DESC" Domain="BalancingTypeThreeRange" DefaultValue="1" ConfigurationGroup="Game" ConfigurationId="BalancingTypeThree" GroupId="AdvancedOptions" Hash="0" SortIndex="2903" /> Obsolete, Permanently set to 1-->
 		<Row ParameterId="Debug_No_Balancing" Name="DEBUG_NAME" Description="DEBUG_DESC" Domain="bool" DefaultValue="0" ConfigurationGroup="Game" ConfigurationId="DEBUG_BALANCING" GroupId="AdvancedOptions" Visible="0" Hash="0" SortIndex="2900" />
 		<Row ParameterId="BBS_RIDGES" Name="LOC_GAME_BBS_RIDGE_NAME" Description="LOC_GAME_BBS_RIDGE_DESC" Domain="RidgeDomain" DefaultValue="0" ConfigurationGroup="Map" ConfigurationId="BBSRidge" GroupId="MapOptions" SortIndex="231" />
+		<Row ParameterId="BBS_SRESOURCES" Name="LOC_GAME_BBS_SRESOURCES_NAME" Description="LOC_GAME_BBS_SRESOURCES_DESC" Domain="StratResDomain" DefaultValue="0" ConfigurationGroup="Map" ConfigurationId="BBSStratRes" GroupId="MapOptions" SupportsSinglePlayer="0" SortIndex="230" />
 		<Row ParameterId="BBS_Team_Spawn" Name="LOC_BBS_Team_Spawn_NAME" Description="LOC_BBS_Team_Spawn_DESC" Domain="TeamersDomain" DefaultValue="0" ConfigurationGroup="Map" ConfigurationId="BBS_Team_Spawn" GroupId="MapOptions" Visible="1" SortIndex="233"/>
 		<!--  Name to allow the script to obtain the correct map settings -->
 		<Row Key1="Map" Key2="Archipelago.lua" ParameterId="ArchipelagoMapName" 		Name="MapName" Description="" Domain="text" DefaultValue="Archipelago" 		ConfigurationGroup="Map" ConfigurationId="MapName" GroupId="MapOptions" Visible="0" SortIndex="2010"/>
@@ -209,11 +210,15 @@
 		<Row Domain="TeamersDomain" Value="1" Name="BBS_Team_Spawn_EW_NAME" Description="BBS_Team_Spawn_EW_DESC" SortIndex="20"/>
 		<Row Domain="TeamersDomain" Value="2" Name="BBS_Team_Spawn_NS_NAME" Description="BBS_Team_Spawn_NS_DESC" SortIndex="30"/>
 
+		<Row Domain="StratResDomain" Value="0" Name="BBS_SRESOURCES_NORMAL_NAME" Description="BBS_SRESOURCES_NORMAL_DESC" SortIndex="10"/>
+		<Row Domain="StratResDomain" Value="1" Name="BBS_SRESOURCES_MORE_NAME" Description="BBS_SRESOURCES_MORE_DESC" SortIndex="20"/>
+		<Row Domain="StratResDomain" Value="2" Name="BBS_SRESOURCES_MUCHMORE_NAME" Description="BBS_SRESOURCES_MUCHMORE_DESC" SortIndex="30"/>
+		<Row Domain="StratResDomain" Value="3" Name="BBS_SRESOURCES_GARANTEED_NAME" Description="BBS_SRESOURCES_GARANTEED_DESC" SortIndex="40"/>
 
 		<Row Domain="RidgeDomain" Value="0" Name="BBS_RIDGE_NORMAL_NAME" Description="BBS_RIDGE_NORMAL_DESC" SortIndex="10"/>
-		<!-- <Row Domain="RidgeDomain" Value="1" Name="BBS_RIDGE_LESS_NAME" Description="BBS_RIDGE_LESS_DESC" SortIndex="20"/> -->
+		<Row Domain="RidgeDomain" Value="1" Name="BBS_RIDGE_RF_NAME" Description="BBS_RIDGE_RF_DESC" SortIndex="20"/>
 		<Row Domain="RidgeDomain" Value="2" Name="BBS_RIDGE_VLESS_NAME" Description="BBS_RIDGE_VLESS_DESC" SortIndex="30"/>
-		<Row Domain="RidgeDomain" Value="4" Name="BBS_RIDGE_NONE_NAME" Description="BBS_RIDGE_NONE_DESC" SortIndex="40"/>
+		<!-- <Row Domain="RidgeDomain" Value="4" Name="BBS_RIDGE_NONE_NAME" Description="BBS_RIDGE_NONE_DESC" SortIndex="40"/> -->
 		<Row Domain="RidgeDomain" Value="3" Name="BBS_RIDGE_MORE_NAME" Description="BBS_RIDGE_MORE_DESC" SortIndex="50"/>
 	</DomainValues>
 

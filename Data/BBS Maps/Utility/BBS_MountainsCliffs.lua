@@ -97,7 +97,7 @@ function ApplyTectonics(args, plotTypes)
 	-- More Passage in Ridge
 	if (MapConfiguration.GetValue("BBSRidge") == 1) then
 		print("BBS_MountainsCliffs Definition: 1")
-		iPassThreshold = iPassThreshold * 0.5
+		iPassThreshold = iPassThreshold
 		elseif ( MapConfiguration.GetValue("BBSRidge") == 2 or MapConfiguration.GetValue("BBSRidge") == 4 ) then
 		print("BBS_MountainsCliffs Definition: 2")
 		iPassThreshold = iPassThreshold * 0
@@ -346,6 +346,46 @@ function SetCliff(terrainTypes, iX, iY)
 					TerrainBuilder.SetWOfCliff(adjacentPlot, true); 
 				elseif(direction == DirectionTypes.DIRECTION_NORTHWEST) then
 					TerrainBuilder.SetNWOfCliff(adjacentPlot, true); 
+				end
+			end
+		end
+	end
+end
+
+function AddVolcanos(plotTypes,world_age,iW, iH)
+	local iVolcanoesPlaced = 0;
+
+	-- Compute target number of volcanoes
+	local iTotalLandPlots = 0;
+	for iX = 0, iW - 1 do
+		for iY = 0, iH - 1 do
+			local index = (iY * iW) + iX;
+			if (plotTypes[index] ~= g_PLOT_TYPE_OCEAN) then
+				iTotalLandPlots = iTotalLandPlots + 1;
+			end
+		end
+	end
+	
+	local iDivisor = 8;
+	if (world_age < 8) then
+		iDivisor = 8 - world_age;  -- iDivisor should be 3 for new, 6 for old
+	end
+	local iDesiredVolcanoes = iTotalLandPlots / (iDivisor * 50);
+
+	print ("Desired Volcanoes: " .. iDesiredVolcanoes);
+	
+	for iX = 0, iW - 1 do
+			for iY = 0, iH - 1 do
+				local index = (iY * iW) + iX;
+				if (plotTypes[index] ~= g_PLOT_TYPE_OCEAN) then
+					local bVolcanoHere = false;
+					if (plotTypes[index] == g_PLOT_TYPE_MOUNTAIN) then
+						local pPlot = Map.GetPlotByIndex(index);
+						local rng = TerrainBuilder.GetRandomNumber(100, "Volcano") / 100
+						if rng > 0.9 and iVolcanoesPlaced < iDesiredVolcanoes then
+						TerrainBuilder.SetFeatureType(pPlot, g_FEATURE_VOLCANO);
+						iVolcanoesPlaced = iVolcanoesPlaced + 1;
+					end
 				end
 			end
 		end
