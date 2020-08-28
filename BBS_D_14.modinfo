@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="131">
+<Mod id="c88cba8b-8311-4d35-90c3-51a4a5d6654d" version="140">
 	<Properties>
-		<Name>Better Balanced Starts 1.31</Name>
+		<Name>Better Balanced Starts 1.4</Name>
 		<Description></Description>
 		<Teaser></Teaser>
-		<Authors>D. / Jack The Narrator, Wazabaza, codenaugh</Authors>
-		<SpecialThanks>Civfanatics.com, CPL, CivFR, Deliverator, VonHolio, Braizh, Kilua, Gedemon, Je, EvilVictor, StormingRomans, Ben</SpecialThanks>
+		<Authors>D. / Jack The Narrator, Wazabaza</Authors>
+		<SpecialThanks>Civfanatics.com, CPL, CivFR, , codenaugh, Deliverator, VonHolio, Braizh, Kilua, Gedemon, Je, EvilVictor, StormingRomans, Ben</SpecialThanks>
 		<CompatibleVersions>1.2,2.0</CompatibleVersions>
 	</Properties>
   <Dependencies>

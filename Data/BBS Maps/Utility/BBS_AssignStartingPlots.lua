@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------
---	FILE:	BBS_AssignStartingPlot.lua    -- 1.2
+--	FILE:	BBS_AssignStartingPlot.lua    -- 1.4
 --	AUTHOR:  D. / Jack The Narrator, Kilua
 --	PURPOSE: Custom Spawn Placement Script
 ------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ include ( "AssignStartingPlots" );
 local bError_major = false;
 local bError_minor = false;
 local bError_proximity = false;
+local bError_shit_settle = false;
 local bRepeatPlacement = false;
 local b_debug_region = false
 local b_north_biased = false
@@ -101,6 +102,7 @@ function BBS_AssignStartingPlots.Create(args)
 	
 	for i = 1,12 do
 		instance = {}
+		bError_shit_settle = false
 		bError_major = false;
 		bError_proximity = false;
 		bError_minor = false;
@@ -140,6 +142,7 @@ function BBS_AssignStartingPlots.Create(args)
         __FindSpecificStrategic				= BBS_AssignStartingPlots.__FindSpecificStrategic,
         __AddStrategic						= BBS_AssignStartingPlots.__AddStrategic,
         __AddLuxury							= BBS_AssignStartingPlots.__AddLuxury,
+		__AddLeyLine						= BBS_AssignStartingPlots.__AddLeyLine,
         __AddBonus							= BBS_AssignStartingPlots.__AddBonus,
         __IsContinentalDivide				= BBS_AssignStartingPlots.__IsContinentalDivide,
         __RemoveBonus						= BBS_AssignStartingPlots.__RemoveBonus,
@@ -192,7 +195,7 @@ function BBS_AssignStartingPlots.Create(args)
 
 		instance:__InitStartingData()
 	
-		if bError_major == false and bError_proximity == false then
+		if bError_major == false and bError_proximity == false and bError_shit_settle == false then
 			print("BBS_AssignStartingPlots: Successfully ran!")
 			if  (bError_minor == true) then
 				print("BBS_AssignStartingPlots: An error has occured: A city-state is missing.")
@@ -770,67 +773,6 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 		local foundBiasFloodPlains = false;
 		local foundBiasCoast = false;
         ratedPlot.Plot = plot;
-		if b_debug_region == true and major == true then
-			if region_index == 0  then -- Region 0: Snow
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,12);
-			end
-			if region_index == 1 then -- Region 1: Grass Jungle
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,2);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,0);
-			end
-			if region_index == 2  then -- Region 2: Forest Grass
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,3);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,0);
-			end
-			if region_index == 3  then -- Region 3: Oasis
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,4);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,0);
-			end
-			if region_index == 4  then -- Region 4: Flat Marsh
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,5);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,0);
-			end
-			if  region_index == 5 then -- Region 5: Plains
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,0);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,3);
-			end
-			if  region_index == 6 then -- Region 6: Jungle Plains
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,2);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,3);
-			end
-			if  region_index == 7 then
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,3);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,3);
-			end
-			if  region_index == 8 then
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,4);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,3);
-			end
-			if  region_index == 9 then
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,5);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,3);
-			end
-			if region_index == 10  then
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,10);
-			end
-			if region_index == 11 then
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,2);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,7);
-			end
-			if region_index == 12  then
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,3);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,7);
-			end
-			if region_index == 13  then
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,4);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,7);
-			end
-			if region_index == 14  then
-				TerrainBuilder.SetFeatureType(ratedPlot.Plot,5);
-				TerrainBuilder.SetTerrainType(ratedPlot.Plot,7);
-			end
-				
-		end
         ratedPlot.Score = 0 + region_bonus;
         ratedPlot.Index = i;
         if (biases ~= nil) then
@@ -875,7 +817,14 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 					ratedPlot.Score = ratedPlot.Score + 100
 					elseif luxcount > 2 and civilizationType ~= "CIVILIZATION_MAYA" then
 					ratedPlot.Score = ratedPlot.Score - 100 * luxcount					
-				end			
+				end	
+					
+			end
+			if self.waterMap == false and foundBiasCoast == false then
+				local water_tiles = self:__CountAdjacentTerrainsInRange(ratedPlot.Plot, nil, true, true)
+				if water_tiles > 8 then
+					ratedPlot.Score = ratedPlot.Score - water_tiles * 50
+				end
 			end
 			if civilizationType ~= "CIVILIZATION_INCA" then
 			    local Mountain_plains = self:__CountAdjacentTerrainsInRange(ratedPlot.Plot, 5, false);
@@ -888,6 +837,9 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 			end
 			if ratedPlot.Plot:IsRiver() then
 				ratedPlot.Score = ratedPlot.Score + 25
+				if foundBiasCoast == false then
+				ratedPlot.Score = ratedPlot.Score + 25
+				end
 				if civilizationType == "CIVILIZATION_MALI" then
 					ratedPlot.Score = ratedPlot.Score + 300
 				end
@@ -960,7 +912,11 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 
 
 				if(plot:GetY() <= min or plot:GetY() > gridHeight - max) then
+					ratedPlot.Score = ratedPlot.Score - 1000
+					elseif(plot:GetY() <= min + 1 or plot:GetY() > gridHeight - max - 1) then 
 					ratedPlot.Score = ratedPlot.Score - 500
+					elseif(plot:GetY() <= min + 2 or plot:GetY() > gridHeight - max - 2) then 
+					ratedPlot.Score = ratedPlot.Score - 75
 				end	
 			end
 			
@@ -1045,17 +1001,20 @@ function BBS_AssignStartingPlots:__RateBiasPlots(biases, startPlots, major, regi
 			ratedPlot.Score = ratedPlot.Score -250;
 		end
         ratedPlot.Score = ratedPlot.Score + self:__CountAdjacentYieldsInRange(plot, major);
-		if (plot:IsCoastalLand() == true) then
-			if civilizationType ~= "CIVILIZATION_MAYA" then
-				ratedPlot.Score = ratedPlot.Score + 25;
-				else
-				ratedPlot.Score = ratedPlot.Score - 50;
-			end
+		if self.waterMap == true and plot:IsCoastalLand() == false then
+			ratedPlot.Score = ratedPlot.Score - 250;
 		end
+		
+		if (civilizationType ~= "CIVILIZATION_MAYA" or self.waterMap == true) and plot:IsCoastalLand() == true then
+			ratedPlot.Score = ratedPlot.Score + 25;
+			else
+			ratedPlot.Score = ratedPlot.Score - 100;
+		end
+
 		if (plot:IsFreshWater() == true and civilizationType ~= "CIVILIZATION_MAYA") then
 			ratedPlot.Score = ratedPlot.Score + 75;
 			if foundBiasCoast == false then
-				ratedPlot.Score = ratedPlot.Score + 75;
+				ratedPlot.Score = ratedPlot.Score + 25;
 			end
 		end
 		if Players[iPlayer] ~= nil then
@@ -1091,6 +1050,9 @@ function BBS_AssignStartingPlots:__SettlePlot(ratedBiases, index, player, major,
                 if (self:__MajorCivBuffer(ratedBias.Plot,player:GetTeam())) then
                     self:__Debug("Settled plot :", ratedBias.Plot:GetX(), ":", ratedBias.Plot:GetY(), "Score :", ratedBias.Score, "Player:",player:GetID(),"Region:",regionIndex);
 					print("Settled Score :", ratedBias.Score, "Player:",player:GetID(),"Region:",regionIndex)
+					if ratedBias.Score < - 500 then
+						bError_shit_settle = true
+					end
                     settled = true;
                     table.insert(self.playerStarts[index], ratedBias.Plot);
                     table.insert(self.majorStartPlots, ratedBias.Plot);
@@ -1098,6 +1060,7 @@ function BBS_AssignStartingPlots:__SettlePlot(ratedBiases, index, player, major,
                     table.insert(self.aMajorStartPlotIndices, ratedBias.Plot:GetIndex());
                     self:__TryToRemoveBonusResource(ratedBias.Plot);
                     player:SetStartingPlot(ratedBias.Plot);
+					self:__AddLeyLine(ratedBias.Plot); 
 					-- Tundra Sharing
 					if ratedBias.Plot:GetTerrainType() > 8 and major == true then
 						self:__Debug("BBS Placement: Flip the North Switch",b_north_biased,"to",not b_north_biased);
@@ -1133,45 +1096,100 @@ function BBS_AssignStartingPlots:__SettlePlot(ratedBiases, index, player, major,
     return settled;
 
 end
+
 ------------------------------------------------------------------------------
-function BBS_AssignStartingPlots:__CountAdjacentTerrainsInRange(plot, terrainType, major)
+function BBS_AssignStartingPlots:__AddLeyLine(plot)
+	local iResourcesInDB = 0;
+	eResourceType	= {};
+	eResourceClassType = {};
+	aBonus = {};
+
+	for row in GameInfo.Resources() do
+		eResourceType[iResourcesInDB] = row.Hash;
+		eResourceClassType[iResourcesInDB] = row.ResourceClassType;
+	    iResourcesInDB = iResourcesInDB + 1;
+	end
+
+	for row = 0, iResourcesInDB do
+		if (eResourceClassType[row] == "RESOURCECLASS_LEY_LINE") then
+			if(eResourceType[row] ~= nil) then
+				table.insert(aBonus, eResourceType[row]);
+			end
+		end
+	end
+
+	local plotX = plot:GetX();
+	local plotY = plot:GetY();
+	
+	aShuffledBonus =  GetShuffledCopyOfTable(aBonus);
+	for i, resource in ipairs(aShuffledBonus) do
+		for dx = -2, 2, 1 do
+			for dy = -2,2, 1 do
+				local otherPlot = Map.GetPlotXY(plotX, plotY, dx, dy, 2);
+				if(otherPlot) then
+					if(ResourceBuilder.CanHaveResource(otherPlot, resource) and otherPlot:GetIndex() ~= plot:GetIndex()) then
+						ResourceBuilder.SetResourceType(otherPlot, resource, 1);
+						return;
+					end
+				end
+			end
+		end 
+	end
+end
+------------------------------------------------------------------------------
+function BBS_AssignStartingPlots:__CountAdjacentTerrainsInRange(plot, terrainType, major,watercheck:boolean)
     local count = 0;
     local plotX = plot:GetX();
     local plotY = plot:GetY();
-    if(not major) then
-        for dir = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
-            local adjacentPlot = Map.GetAdjacentPlot(plotX, plotY, dir);
-            if(adjacentPlot ~= nil and adjacentPlot:GetTerrainType() == terrainType) then
+	if (not watercheck) then
+		if (not major) then
+			for dir = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+				local adjacentPlot = Map.GetAdjacentPlot(plotX, plotY, dir);
+				if(adjacentPlot ~= nil and adjacentPlot:GetTerrainType() == terrainType) then
                 count = count + 1;
-            end
-        end
-    elseif (terrainType == g_TERRAIN_TYPE_COAST) then
-        -- At least one adjacent coast but that is not a lake and not more than one
-        for dir = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
+				end
+			end
+			elseif (terrainType == g_TERRAIN_TYPE_COAST) then
+			-- At least one adjacent coast but that is not a lake and not more than one
+			for dir = 0, DirectionTypes.NUM_DIRECTION_TYPES - 1, 1 do
             local adjacentPlot = Map.GetAdjacentPlot(plotX, plotY, dir);
-            if(adjacentPlot ~= nil and adjacentPlot:GetTerrainType() == terrainType) then
-                if (not adjacentPlot:IsLake() and count < 1) then
+				if(adjacentPlot ~= nil and adjacentPlot:GetTerrainType() == terrainType) then
+					if (not adjacentPlot:IsLake() and count < 1) then
+                    count = count + 1;
+					end
+				end
+			end
+			else
+			for dx = -2, 2, 1 do
+				for dy = -2, 2, 1 do
+					local adjacentPlot = Map.GetPlotXYWithRangeCheck(plotX, plotY, dx, dy, 2);
+					if(adjacentPlot ~= nil and adjacentPlot:GetTerrainType() == terrainType) then
+                    count = count + 1;
+					end
+				end
+			end
+		end
+		return count;
+		
+		else
+		
+	    for dx = -3, 3, 1 do
+            for dy = -3, 3, 1 do
+                local adjacentPlot = Map.GetPlotXYWithRangeCheck(plotX, plotY, dx, dy, 3);
+                if(adjacentPlot ~= nil and adjacentPlot:IsWater() == true) then
                     count = count + 1;
                 end
             end
         end
-    else
-        for dx = -2, 2, 1 do
-            for dy = -2, 2, 1 do
-                local adjacentPlot = Map.GetPlotXYWithRangeCheck(plotX, plotY, dx, dy, 2);
-                if(adjacentPlot ~= nil and adjacentPlot:GetTerrainType() == terrainType) then
-                    count = count + 1;
-                end
-            end
-        end
-    end
-    return count;
+
+		return count
+	end
 end
 ------------------------------------------------------------------------------
 function BBS_AssignStartingPlots:__ScoreAdjacent(count, tier)
     local score = 0;
     local adjust = self.tierMax + 2 - tier;
-    score = count * adjust ^ 3;
+    score = count * adjust ^ 2;
     return score;
 end
 ------------------------------------------------------------------------------
@@ -1973,13 +1991,23 @@ function BBS_AssignStartingPlots:__GetValidAdjacent(plot, major)
 		if(adjacentPlot:GetFeatureType() == g_FEATURE_VOLCANO and major == true) then
 			return false
 		end 
-
-
             else
                 impassable = impassable + 1;
             end
         end
     end
+	
+	if major == true then
+		if self:__CountAdjacentResourcesInRange(plot, 27, major) > 0 then
+		return false
+		end
+		if self:__CountAdjacentResourcesInRange(plot, 11, major) > 0 then
+		return false
+		end
+		if self:__CountAdjacentResourcesInRange(plot, 28, major) > 0 then
+		return false
+	end
+	end
 
     if(impassable >= 2 and not self.waterMap and major == true) then
         return false;

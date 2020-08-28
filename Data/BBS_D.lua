@@ -197,6 +197,26 @@ local bBiasFail = false;
 -- 1.3.1		Maya spawn is no longer penalized if spawning next to > 1 luxuries
 --			Maya spawn is no longer driven by Fresh Water, avoid Coast (still benefit from River)
 --			Maya spawn is no longer receiving a lake if spawning without any Fresh water
+-- 1.3.2  	Maya further tilt placement away from the coast -done
+-- 		Tweak 1:3 best tile scoring to lowering in order to reflect that tiles might not be workable to allow growth - done
+-- 		Best tiles only value more production if food > 1 on that tile - done
+--		Minor adjustment in the % random chances of forest/hills when adjusting spawns - done
+--		More severe Penalties for higher latidude spawns for non Tundra civs - done
+--		Non coastal Civ would no longer spawn as often on peninsulas for non water map - done
+--		Adapt the distance function for Niter - done Only needed for ancient start actually maximum strength of the function is about 7-8 range (c. 100 tiles)
+-- 1.4		August patch 27 support
+--		Ban spice & cocoa banned from the first ring and low probability on second ring under normal circumstances 
+--		Mountains now counts a little bit toward food and prod min 
+--		Detect biases (to allow non-BBG support for Russian community)
+--		Bug fix for Volcanoes introduced by the NFP
+--		Fixed an error on Egypt with floodplains
+--		Fixed an error on Amber not scoring culture
+--		Fixed an error whereby a civ would get overly compensated (getting a 2:3 instead of 2:2) while starting on Plains Hills
+--		Culture and Faith tiles with no production are scored lower. So a 2f 1c is < 2f 2p for the algo
+--		Tweaked the density of wood close to the Tundra/Grass/Plains limits (Not sure if NFP reduced the woods or if it was a consequence of Maize removing previously placed wood)
+--		Tweaked the nerf on Russia now that mountains are counted ~= 0 for food and prod
+--		Plain starts can no longer receive over 2 rounds of bonus resources when rebalancing a spawn for food.
+--		Change slightly the best tiles scoring
 
 
 -- Code structure: Code is run right before the first turn starts
@@ -213,7 +233,7 @@ local bBiasFail = false;
 --	Run spawn correction Coastal (failsafe to prevent harbor blocked by reefs) 
 --	Run Choke point analysis (prevent crashes)
 
-g_version = "1.31"
+g_version = "1.40"
 
 -----------------------------------------------------------------------------
 function __Debug(...)
